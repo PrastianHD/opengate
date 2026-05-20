@@ -1,14 +1,14 @@
 import CopyButton from "../components/CopyButton";
 
 export const metadata = {
-  title: "Docs | OpenGates",
-  description: "API documentation for OpenGates gateway",
+  title: "Docs | OpenGate",
+  description: "API documentation for OpenGate gateway",
 };
 
 const PYTHON_SNIPPET = `from openai import OpenAI
 
 client = OpenAI(
-    base_url="https://api.opengates.cloud/v1",
+    base_url="https://api.opengate.host/v1",
     api_key="ogt-xxx"
 )
 
@@ -20,7 +20,7 @@ response = client.chat.completions.create(
 const NODE_SNIPPET = `import OpenAI from "openai";
 
 const client = new OpenAI({
-  baseURL: "https://api.opengates.cloud/v1",
+  baseURL: "https://api.opengate.host/v1",
   apiKey: "ogt-xxx"
 });
 
@@ -29,7 +29,7 @@ const res = await client.chat.completions.create({
   messages: [{ role: "user", content: "Hi" }]
 });`;
 
-const CURL_SNIPPET = `curl https://api.opengates.cloud/v1/chat/completions \\
+const CURL_SNIPPET = `curl https://api.opengate.host/v1/chat/completions \\
   -H "Authorization: Bearer ogt-xxx" \\
   -H "Content-Type: application/json" \\
   -d '{"model":"claude-opus-4.7","messages":[{"role":"user","content":"Hi"}]}'`;
@@ -82,9 +82,9 @@ export default function DocsPage() {
               <h3>Base URL</h3>
               <p>Set this as the base URL in any OpenAI-compatible client:</p>
               <div className="code-block-wrap">
-                <CopyButton text="https://api.opengates.cloud/v1" />
+                <CopyButton text="https://api.opengate.host/v1" />
                 <div className="code-block">
-                  <span className="code-url">https://api.opengates.cloud/v1</span>
+                  <span className="code-url">https://api.opengate.host/v1</span>
                 </div>
               </div>
             </div>

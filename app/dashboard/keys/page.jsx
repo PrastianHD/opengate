@@ -3,7 +3,7 @@ import KeysToolbar from "./KeysToolbar";
 import KeyActions from "./KeyActions";
 
 export const metadata = {
-  title: "API Keys | OpenGates",
+  title: "API Keys | OpenGate",
 };
 
 const MICRO_PER_USD = 1_000_000;
@@ -60,7 +60,7 @@ export default async function KeysPage() {
         <div>
           <h1>API Keys</h1>
           <p className="dashboard-page-sub">
-            Manage tokens that authenticate requests to the OpenGates gateway.
+            Manage tokens that authenticate requests to the OpenGate gateway.
           </p>
         </div>
         <KeysToolbar availableModels={models || []} />
@@ -71,7 +71,7 @@ export default async function KeysPage() {
           <h3>No keys yet</h3>
           <p>
             Create your first key to start sending requests to{" "}
-            <code>api.opengates.cloud/v1</code>. Each key has its own spending cap
+            <code>api.opengate.host/v1</code>. Each key has its own spending cap
             and model whitelist.
           </p>
         </div>

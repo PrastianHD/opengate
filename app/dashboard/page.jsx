@@ -1,7 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 
 export const metadata = {
-  title: "Dashboard | OpenGates",
+  title: "Dashboard | OpenGate",
 };
 
 const MICRO_PER_USD = 1_000_000;
@@ -79,7 +79,7 @@ export default async function DashboardOverview() {
             Top up credit on the <a href="/dashboard/billing">Billing</a> page.
           </li>
           <li>
-            Point your client at <code>https://api.opengates.cloud/v1</code> using
+            Point your client at <code>https://api.opengate.host/v1</code> using
             your <code>ogt-…</code> token.
           </li>
         </ol>

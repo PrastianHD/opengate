@@ -18,7 +18,7 @@ const jetbrainsMono = JetBrains_Mono({
 });
 
 export const metadata = {
-  title: "OpenGates | API Gateway",
+  title: "OpenGate | API Gateway",
   description: "Owner, reseller and buyer API management panel",
   icons: {
     icon: "/logo.svg",

@@ -1,6 +1,6 @@
 # Stage 1 — Database setup
 
-This stage creates the database schema, RLS policies, and seed data for OpenGates.
+This stage creates the database schema, RLS policies, and seed data for OpenGate.
 
 ## Prerequisites
 

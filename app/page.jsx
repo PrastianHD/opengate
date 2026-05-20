@@ -14,14 +14,14 @@ export default function HomePage() {
             Sell, control, and route <span>AI access</span> from one branded gateway.
           </h1>
           <p className="hero-text">
-            OpenGates gives resellers, buyers, and builders a polished gateway
+            OpenGate gives resellers, buyers, and builders a polished gateway
             for OpenAI-compatible chat, responses, image generation, managed
             API keys, usage visibility, and quota controls.
           </p>
           <div className="hero-cta">
             <a
               className="btn-primary"
-              href="https://t.me/opengates_bot"
+              href="https://t.me/opengate_bot"
               target="_blank"
               rel="noreferrer"
             >

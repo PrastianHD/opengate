@@ -3,7 +3,7 @@ import { createClient } from "@/lib/supabase/server";
 import LoginButton from "./LoginButton";
 
 export const metadata = {
-  title: "Sign in | OpenGates",
+  title: "Sign in | OpenGate",
 };
 
 export default async function LoginPage({ searchParams }) {
@@ -21,8 +21,8 @@ export default async function LoginPage({ searchParams }) {
     <section className="auth-section">
       <div className="auth-card">
         <div className="auth-brand">
-          <img src="/logo.svg" alt="OpenGates" />
-          <span>OpenGates</span>
+          <img src="/logo.svg" alt="OpenGate" />
+          <span>OpenGate</span>
         </div>
 
         <h1>Welcome back</h1>

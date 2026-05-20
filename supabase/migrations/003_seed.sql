@@ -1,5 +1,5 @@
 -- ============================================================================
--- OpenGates Stage 1 — Seed data
+-- OpenGate Stage 1 — Seed data
 -- 7 providers + 12 models with pricing in micro-cents.
 -- Run after 001_schema.sql + 002_rls.sql
 -- ============================================================================

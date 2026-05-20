@@ -2,7 +2,7 @@ import { requireAdminPage } from "@/lib/admin/guard";
 import ModelRow from "./ModelRow";
 
 export const metadata = {
-  title: "Models | OpenGates Admin",
+  title: "Models | OpenGate Admin",
 };
 
 const MICRO_PER_USD = 1_000_000;

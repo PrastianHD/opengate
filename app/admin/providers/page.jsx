@@ -4,7 +4,7 @@ import UpstreamKeyRow from "./UpstreamKeyRow";
 import AddKeyButton from "./AddKeyButton";
 
 export const metadata = {
-  title: "Providers | OpenGates Admin",
+  title: "Providers | OpenGate Admin",
 };
 
 export default async function AdminProvidersPage() {

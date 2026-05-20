@@ -19,9 +19,9 @@ export default function Nav() {
     <nav className="glass-nav">
       <Link href="/" className="brand-lockup" onClick={() => setOpen(false)}>
         <span className="brand-mark">
-          <img src="/logo.svg" alt="OpenGates logo" />
+          <img src="/logo.svg" alt="OpenGate logo" />
         </span>
-        <span>OpenGates</span>
+        <span>OpenGate</span>
       </Link>
 
       <button
@@ -51,7 +51,7 @@ export default function Nav() {
       <div className="nav-actions">
         <a
           className="nav-pill primary-nav"
-          href="https://t.me/opengates_bot"
+          href="https://t.me/opengate_bot"
           target="_blank"
           rel="noreferrer"
         >

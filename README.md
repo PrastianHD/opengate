@@ -1,8 +1,8 @@
-# OpenGates
+# OpenGate
 
 > Private AI Gateway Studio — sell, control, and route AI access from one branded gateway.
 
-OpenGates is an OpenAI-compatible gateway for resellers, buyers, and builders. It provides managed API keys, usage visibility, quota controls, and drop-in compatibility with the OpenAI SDK across 12+ leading models.
+OpenGate is an OpenAI-compatible gateway for resellers, buyers, and builders. It provides managed API keys, usage visibility, quota controls, and drop-in compatibility with the OpenAI SDK across 12+ leading models.
 
 This repository contains the **public landing site** built with Next.js 15, React 19, and custom CSS.
 
@@ -117,4 +117,4 @@ Replace `public/logo.svg` and update strings in `app/components/Nav.jsx`, `app/c
 
 ## License
 
-Proprietary — OpenGates © 2026.
+Proprietary — OpenGate © 2026.

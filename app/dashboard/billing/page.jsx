@@ -1,7 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 
 export const metadata = {
-  title: "Billing | OpenGates",
+  title: "Billing | OpenGate",
 };
 
 const MICRO_PER_USD = 1_000_000;
@@ -81,7 +81,7 @@ export default async function BillingPage() {
           </p>
           <a
             className="btn btn-primary"
-            href="https://t.me/opengates_bot"
+            href="https://t.me/opengate_bot"
             target="_blank"
             rel="noreferrer"
           >

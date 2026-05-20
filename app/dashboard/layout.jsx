@@ -21,8 +21,8 @@ export default async function DashboardLayout({ children }) {
     <section className="dashboard-shell">
       <aside className="dashboard-side">
         <div className="dashboard-brand">
-          <img src="/logo.svg" alt="OpenGates" />
-          <span>OpenGates</span>
+          <img src="/logo.svg" alt="OpenGate" />
+          <span>OpenGate</span>
         </div>
 
         <DashboardNav />

@@ -1,5 +1,5 @@
 -- ============================================================================
--- OpenGates Stage 1 — Row Level Security policies
+-- OpenGate Stage 1 — Row Level Security policies
 -- Run after 001_schema.sql
 -- ============================================================================
 

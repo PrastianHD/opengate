@@ -1,7 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 
 export const metadata = {
-  title: "Usage | OpenGates",
+  title: "Usage | OpenGate",
 };
 
 const MICRO_PER_USD = 1_000_000;

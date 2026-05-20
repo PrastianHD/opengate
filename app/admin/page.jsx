@@ -1,7 +1,7 @@
 import { requireAdminPage } from "@/lib/admin/guard";
 
 export const metadata = {
-  title: "Admin Overview | OpenGates",
+  title: "Admin Overview | OpenGate",
 };
 
 const MICRO_PER_USD = 1_000_000;

@@ -2,7 +2,7 @@ import { requireAdminPage } from "@/lib/admin/guard";
 import AdminNav from "./AdminNav";
 
 export const metadata = {
-  title: "Admin | OpenGates",
+  title: "Admin | OpenGate",
 };
 
 export default async function AdminLayout({ children }) {
@@ -12,9 +12,9 @@ export default async function AdminLayout({ children }) {
     <section className="dashboard-shell">
       <aside className="dashboard-side">
         <div className="dashboard-brand">
-          <img src="/logo.svg" alt="OpenGates" />
+          <img src="/logo.svg" alt="OpenGate" />
           <span>
-            OpenGates <em className="admin-badge">admin</em>
+            OpenGate <em className="admin-badge">admin</em>
           </span>
         </div>
 

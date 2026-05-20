@@ -1,5 +1,5 @@
 -- ============================================================================
--- OpenGates Stage 1 — Schema (Supabase / Postgres)
+-- OpenGate Stage 1 — Schema (Supabase / Postgres)
 -- Run order: 001_schema.sql -> 002_rls.sql -> 003_seed.sql
 -- ============================================================================
 

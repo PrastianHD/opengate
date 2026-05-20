@@ -1,8 +1,8 @@
 import PricingCalculator from "../components/PricingCalculator";
 
 export const metadata = {
-  title: "Pricing | OpenGate",
-  description: "Pricing tiers for the OpenGate API gateway",
+  title: "Pricing | OpenGates",
+  description: "Pricing tiers for the OpenGates API gateway",
 };
 
 const tiers = [
@@ -22,7 +22,7 @@ const tiers = [
   },
   {
     name: "Reseller",
-    price: "$49",
+    price: "$19",
     period: "/ month",
     featured: true,
     features: [
@@ -83,7 +83,7 @@ export default function PricingPage() {
               </ul>
               <a
                 className={t.featured ? "btn-primary" : "btn-secondary"}
-                href="https://t.me/opengate_bot"
+                href="https://t.me/opengates_bot"
                 target="_blank"
                 rel="noreferrer"
               >

@@ -1,8 +1,8 @@
 import ModelsView from "../components/ModelsView";
 
 export const metadata = {
-  title: "Models | OpenGate",
-  description: "Available AI models on the OpenGate gateway",
+  title: "Models | OpenGates",
+  description: "Available AI models on the OpenGates gateway",
 };
 
 export default function ModelsPage() {

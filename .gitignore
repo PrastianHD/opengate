@@ -1,6 +1,7 @@
 node_modules/
 .next/
 out/
+.env*
 .env*.local
 .DS_Store
 *.log
@@ -11,3 +12,7 @@ UI/
 image.png
 CLAUDE.md
 .claude/
+
+# Supabase local
+supabase/.branches
+supabase/.temp

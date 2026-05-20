@@ -7,7 +7,7 @@ const FRAMES = [
     request: [
       { type: "method", text: "POST" },
       { type: "space" },
-      { type: "url", text: "https://api.opengate.com/v1/chat/completions" },
+      { type: "url", text: "https://api.opengates.cloud/v1/chat/completions" },
       { type: "br" },
       { type: "br" },
       { type: "header", text: "Authorization:" },
@@ -51,7 +51,7 @@ const FRAMES = [
     request: [
       { type: "method", text: "POST" },
       { type: "space" },
-      { type: "url", text: "https://api.opengate.com/v1/chat/completions" },
+      { type: "url", text: "https://api.opengates.cloud/v1/chat/completions" },
       { type: "br" },
       { type: "br" },
       { type: "header", text: "Authorization:" },

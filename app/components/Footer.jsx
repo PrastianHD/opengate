@@ -9,14 +9,14 @@ export default function Footer() {
             <span className="footer-mark">
               <img src="/logo.svg" alt="" />
             </span>
-            <strong>OpenGate</strong>
+            <strong>OpenGates</strong>
           </div>
           <p className="footer-tagline">
             Private AI gateway for resellers, buyers, and builders.
           </p>
           <p className="footer-meta">
             Built around{" "}
-            <code>https://api.opengate.com/v1</code>
+            <code>https://api.opengates.cloud/v1</code>
           </p>
         </div>
 
@@ -36,14 +36,14 @@ export default function Footer() {
               </span>
             </a>
             <a
-              href="https://github.com/opengate"
+              href="https://github.com/PrastianHD/opengate"
               target="_blank"
               rel="noreferrer"
             >
               GitHub
             </a>
             <a
-              href="https://t.me/opengate_bot"
+              href="https://t.me/opengates_bot"
               target="_blank"
               rel="noreferrer"
             >
@@ -60,7 +60,7 @@ export default function Footer() {
       </div>
 
       <div className="footer-bottom">
-        <span>© 2026 OpenGate · API Gateway</span>
+        <span>© 2026 OpenGates · API Gateway</span>
         <span>Made with ❤︎ for AI builders</span>
       </div>
     </footer>

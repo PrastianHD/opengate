@@ -2,7 +2,7 @@ import { redirect } from "next/navigation";
 import Image from "next/image";
 import { createClient } from "@/lib/supabase/server";
 import Avatar from "../components/Avatar";
-import SidebarShell from "../components/SidebarShell";
+import SidebarShell, { SidebarCollapseButton } from "../components/SidebarShell";
 import DashboardNav from "./DashboardNav";
 
 export default async function DashboardLayout({ children }) {
@@ -23,12 +23,12 @@ export default async function DashboardLayout({ children }) {
   return (
     <SidebarShell
       ariaLabel="Dashboard navigation"
-      side={({ collapseButton }) => (
+      side={
         <>
           <div className="dashboard-brand">
             <Image src="/logo.svg" alt="" width={28} height={28} priority />
             <span>OpenGate</span>
-            {collapseButton}
+            <SidebarCollapseButton />
           </div>
 
           <DashboardNav />
@@ -52,7 +52,7 @@ export default async function DashboardLayout({ children }) {
             </form>
           </div>
         </>
-      )}
+      }
     >
       {children}
     </SidebarShell>

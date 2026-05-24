@@ -1,6 +1,6 @@
 import Image from "next/image";
 import { requireAdminPage } from "@/lib/admin/guard";
-import SidebarShell from "../components/SidebarShell";
+import SidebarShell, { SidebarCollapseButton } from "../components/SidebarShell";
 import AdminNav from "./AdminNav";
 
 export const metadata = {
@@ -13,14 +13,14 @@ export default async function AdminLayout({ children }) {
   return (
     <SidebarShell
       ariaLabel="Admin navigation"
-      side={({ collapseButton }) => (
+      side={
         <>
           <div className="dashboard-brand">
             <Image src="/logo.svg" alt="" width={28} height={28} priority />
             <span>
               OpenGate <em className="admin-badge">admin</em>
             </span>
-            {collapseButton}
+            <SidebarCollapseButton />
           </div>
 
           <AdminNav />
@@ -36,7 +36,7 @@ export default async function AdminLayout({ children }) {
             </form>
           </div>
         </>
-      )}
+      }
     >
       {children}
     </SidebarShell>

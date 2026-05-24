@@ -1,5 +1,7 @@
+import Image from "next/image";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { safeNextPath } from "@/lib/api/helpers";
 import LoginButton from "./LoginButton";
 
 export const metadata = {
@@ -14,14 +16,14 @@ export default async function LoginPage({ searchParams }) {
 
   // Already signed in — bounce to dashboard (or `next` param)
   const params = await searchParams;
-  const next = params?.next || "/dashboard";
+  const next = safeNextPath(params?.next);
   if (user) redirect(next);
 
   return (
     <section className="auth-section">
       <div className="auth-card">
         <div className="auth-brand">
-          <img src="/logo.svg" alt="OpenGate" />
+          <Image src="/logo.svg" alt="" width={28} height={28} priority />
           <span>OpenGate</span>
         </div>
 

@@ -1,5 +1,8 @@
 import { redirect } from "next/navigation";
+import Image from "next/image";
 import { createClient } from "@/lib/supabase/server";
+import Avatar from "../components/Avatar";
+import SidebarShell from "../components/SidebarShell";
 import DashboardNav from "./DashboardNav";
 
 export default async function DashboardLayout({ children }) {
@@ -18,38 +21,40 @@ export default async function DashboardLayout({ children }) {
     .single();
 
   return (
-    <section className="dashboard-shell">
-      <aside className="dashboard-side">
-        <div className="dashboard-brand">
-          <img src="/logo.svg" alt="OpenGate" />
-          <span>OpenGate</span>
-        </div>
-
-        <DashboardNav />
-
-        <div className="dashboard-side-foot">
-          <div className="dashboard-userchip">
-            {appUser?.avatar_url ? (
-              <img src={appUser.avatar_url} alt="" />
-            ) : (
-              <div className="dashboard-avatar-fallback">
-                {(appUser?.email || "?").slice(0, 1).toUpperCase()}
-              </div>
-            )}
-            <div>
-              <strong>{appUser?.display_name || appUser?.email}</strong>
-              <span>{appUser?.role}</span>
-            </div>
+    <SidebarShell
+      ariaLabel="Dashboard navigation"
+      side={({ collapseButton }) => (
+        <>
+          <div className="dashboard-brand">
+            <Image src="/logo.svg" alt="" width={28} height={28} priority />
+            <span>OpenGate</span>
+            {collapseButton}
           </div>
-          <form action="/auth/signout" method="post">
-            <button type="submit" className="dashboard-signout">
-              Sign out
-            </button>
-          </form>
-        </div>
-      </aside>
 
-      <div className="dashboard-main">{children}</div>
-    </section>
+          <DashboardNav />
+
+          <div className="dashboard-side-foot">
+            <div className="dashboard-userchip">
+              <Avatar
+                src={appUser?.avatar_url}
+                name={appUser?.display_name || appUser?.email}
+                size={32}
+              />
+              <div>
+                <strong>{appUser?.display_name || appUser?.email}</strong>
+                <span>{appUser?.role}</span>
+              </div>
+            </div>
+            <form action="/auth/signout" method="post">
+              <button type="submit" className="dashboard-signout">
+                Sign out
+              </button>
+            </form>
+          </div>
+        </>
+      )}
+    >
+      {children}
+    </SidebarShell>
   );
 }

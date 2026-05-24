@@ -2,25 +2,14 @@
 // Auth: Supabase session cookie (NOT gateway Bearer). RLS additionally guards
 // the rows, but we filter by auth.uid() explicitly for clarity.
 
-import { createClient } from "@/lib/supabase/server";
 import { generateGatewayKey } from "@/lib/gateway/keyGen";
-
-const MICRO_PER_USD = 1_000_000;
-
-async function requireUser() {
-  const sb = await createClient();
-  const {
-    data: { user },
-  } = await sb.auth.getUser();
-  if (!user) {
-    return {
-      sb: null,
-      user: null,
-      response: jsonError(401, "unauthenticated", "Sign in required"),
-    };
-  }
-  return { sb, user, response: null };
-}
+import { MICRO_PER_USD } from "@/lib/format";
+import {
+  clampInt,
+  jsonError,
+  requireUser,
+  toFiniteNumber,
+} from "@/lib/api/helpers";
 
 export async function GET() {
   const { sb, user, response } = await requireUser();
@@ -96,21 +85,4 @@ export async function POST(request) {
     notice:
       "Store this token now — it will not be shown again. Treat it like a password.",
   });
-}
-
-function clampInt(v, min, max) {
-  if (v == null || v === "") return null;
-  const n = Number.parseInt(v, 10);
-  if (!Number.isFinite(n)) return null;
-  return Math.max(min, Math.min(max, n));
-}
-
-function toFiniteNumber(v) {
-  if (v == null || v === "") return null;
-  const n = Number(v);
-  return Number.isFinite(n) && n > 0 ? n : null;
-}
-
-function jsonError(status, code, message) {
-  return Response.json({ error: { code, message } }, { status });
 }

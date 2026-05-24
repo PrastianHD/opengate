@@ -1,6 +1,6 @@
-import { createClient } from "@/lib/supabase/server";
+import { MICRO_PER_USD } from "@/lib/format";
+import { jsonError, requireUser } from "@/lib/api/helpers";
 
-const MICRO_PER_USD = 1_000_000;
 const ALLOWED_PATCH = new Set([
   "label",
   "enabled",
@@ -9,15 +9,6 @@ const ALLOWED_PATCH = new Set([
   "spending_cap_usd",
   "expires_at",
 ]);
-
-async function requireUser() {
-  const sb = await createClient();
-  const {
-    data: { user },
-  } = await sb.auth.getUser();
-  if (!user) return { response: err(401, "unauthenticated", "Sign in required") };
-  return { sb, user };
-}
 
 export async function PATCH(request, { params }) {
   const { id } = await params;
@@ -28,7 +19,7 @@ export async function PATCH(request, { params }) {
   try {
     payload = await request.json();
   } catch {
-    return err(400, "invalid_json", "Body is not JSON");
+    return jsonError(400, "invalid_json", "Body is not JSON");
   }
 
   const update = {};
@@ -50,7 +41,7 @@ export async function PATCH(request, { params }) {
       update.model_whitelist = v && v.length > 0 ? v : null;
     } else if (k === "label") {
       const v = String(payload[k]).trim().slice(0, 60);
-      if (!v) return err(400, "label_required", "Label is required");
+      if (!v) return jsonError(400, "label_required", "Label is required");
       update.label = v;
     } else if (k === "enabled") {
       update.enabled = !!payload[k];
@@ -58,7 +49,7 @@ export async function PATCH(request, { params }) {
   }
 
   if (Object.keys(update).length === 0) {
-    return err(400, "nothing_to_update", "No editable fields supplied");
+    return jsonError(400, "nothing_to_update", "No editable fields supplied");
   }
 
   const { data, error } = await sb
@@ -69,8 +60,8 @@ export async function PATCH(request, { params }) {
     .select("id")
     .single();
 
-  if (error) return err(500, "update_failed", error.message);
-  if (!data) return err(404, "not_found", "Key not found");
+  if (error) return jsonError(500, "update_failed", error.message);
+  if (!data) return jsonError(404, "not_found", "Key not found");
   return Response.json({ ok: true });
 }
 
@@ -88,11 +79,7 @@ export async function DELETE(_request, { params }) {
     .select("id")
     .single();
 
-  if (error) return err(500, "revoke_failed", error.message);
-  if (!data) return err(404, "not_found", "Key not found");
+  if (error) return jsonError(500, "revoke_failed", error.message);
+  if (!data) return jsonError(404, "not_found", "Key not found");
   return Response.json({ ok: true });
-}
-
-function err(status, code, message) {
-  return Response.json({ error: { code, message } }, { status });
 }

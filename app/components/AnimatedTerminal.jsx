@@ -81,9 +81,8 @@ const FRAMES = [
 function Token({ part }) {
   if (part.type === "br") return "\n";
   if (part.type === "space") return " ";
-  const className = `code-${part.type}`;
   if (["method", "url", "header", "value", "key", "string"].includes(part.type)) {
-    return <span className={className}>{part.text}</span>;
+    return <span className={`code-${part.type}`}>{part.text}</span>;
   }
   return part.text;
 }
@@ -93,12 +92,34 @@ export default function AnimatedTerminal() {
   const [phase, setPhase] = useState("typing");
   const [typedCount, setTypedCount] = useState(0);
   const [responseText, setResponseText] = useState("");
+  const [reduced, setReduced] = useState(false);
   const timerRef = useRef(null);
 
   const frame = FRAMES[frameIdx];
 
   useEffect(() => {
+    const mql = window.matchMedia("(prefers-reduced-motion: reduce)");
+    setReduced(mql.matches);
+    const onChange = (e) => setReduced(e.matches);
+    mql.addEventListener?.("change", onChange);
+    return () => mql.removeEventListener?.("change", onChange);
+  }, []);
+
+  useEffect(() => {
     clearTimeout(timerRef.current);
+
+    if (reduced) {
+      // Skip animation: show full request + response, no looping.
+      const totalChars = frame.request.reduce(
+        (sum, p) => sum + (p.text?.length || (p.type === "br" ? 1 : p.type === "space" ? 1 : 0)),
+        0
+      );
+      setTypedCount(totalChars);
+      setResponseText(frame.response);
+      setPhase("done");
+      return;
+    }
+
     const totalChars = frame.request.reduce(
       (sum, p) => sum + (p.text?.length || (p.type === "br" ? 1 : p.type === "space" ? 1 : 0)),
       0
@@ -132,7 +153,7 @@ export default function AnimatedTerminal() {
     }
 
     return () => clearTimeout(timerRef.current);
-  }, [phase, typedCount, responseText, frame, frameIdx]);
+  }, [phase, typedCount, responseText, frame, frameIdx, reduced]);
 
   let charsLeft = typedCount;
   const visibleParts = [];

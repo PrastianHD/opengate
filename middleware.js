@@ -42,7 +42,9 @@ export async function middleware(request) {
   if ((path.startsWith("/dashboard") || path.startsWith("/admin")) && !user) {
     const url = request.nextUrl.clone();
     url.pathname = "/login";
-    url.searchParams.set("next", path);
+    // Only forward path + query to avoid open-redirect via fragments/origin.
+    const safeNext = path + (request.nextUrl.search || "");
+    url.search = `?next=${encodeURIComponent(safeNext)}`;
     return NextResponse.redirect(url);
   }
 

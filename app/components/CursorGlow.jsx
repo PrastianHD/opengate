@@ -6,6 +6,14 @@ export default function CursorGlow() {
   const ref = useRef(null);
 
   useEffect(() => {
+    if (
+      typeof window !== "undefined" &&
+      (window.matchMedia("(prefers-reduced-motion: reduce)").matches ||
+        window.matchMedia("(hover: none)").matches)
+    ) {
+      return;
+    }
+
     const el = ref.current;
     if (!el) return;
     let raf = 0;
@@ -36,7 +44,7 @@ export default function CursorGlow() {
       raf = requestAnimationFrame(loop);
     }
 
-    window.addEventListener("mousemove", onMove);
+    window.addEventListener("mousemove", onMove, { passive: true });
     window.addEventListener("mouseleave", onLeave);
     raf = requestAnimationFrame(loop);
 

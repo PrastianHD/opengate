@@ -1,4 +1,5 @@
 import { requireAdminPage } from "@/lib/admin/guard";
+import Pill from "@/app/components/Pill";
 import ProviderToggle from "./ProviderToggle";
 import UpstreamKeyRow from "./UpstreamKeyRow";
 import AddKeyButton from "./AddKeyButton";
@@ -50,9 +51,7 @@ export default async function AdminProvidersPage() {
               <div>
                 <h2 className="dashboard-section-title">
                   {p.name}{" "}
-                  <span className={`pill pill-${p.enabled ? "active" : "expired"}`}>
-                    {p.enabled ? "enabled" : "disabled"}
-                  </span>
+                  <Pill status={p.enabled ? "enabled" : "disabled"} />
                 </h2>
                 <div className="provider-meta">
                   <code>{p.base_url}</code>{" "}
@@ -70,6 +69,9 @@ export default async function AdminProvidersPage() {
             {providerKeys.length === 0 ? (
               <div className="dashboard-empty dashboard-empty-compact">
                 <p>No keys configured for this provider.</p>
+                <div className="dashboard-empty-actions">
+                  <AddKeyButton providers={[p]} variant="compact" />
+                </div>
               </div>
             ) : (
               <div className="dashboard-table-wrap">

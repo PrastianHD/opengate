@@ -1,8 +1,9 @@
 import { requireAdminApi } from "@/lib/admin/guard";
+import { jsonError } from "@/lib/api/helpers";
+import { MICRO_PER_USD } from "@/lib/format";
 
 export const runtime = "nodejs";
 
-const MICRO_PER_USD = 1_000_000;
 const ALLOWED_PATCH = new Set([
   "enabled",
   "input_price_per_m_usd",
@@ -57,8 +58,4 @@ export async function PATCH(request, { params }) {
     .eq("id", id);
   if (error) return jsonError(500, "update_failed", error.message);
   return Response.json({ ok: true });
-}
-
-function jsonError(status, code, message) {
-  return Response.json({ error: { code, message } }, { status });
 }

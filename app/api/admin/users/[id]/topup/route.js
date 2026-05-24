@@ -1,8 +1,8 @@
 import { requireAdminApi } from "@/lib/admin/guard";
+import { jsonError } from "@/lib/api/helpers";
+import { MICRO_PER_USD } from "@/lib/format";
 
 export const runtime = "nodejs";
-
-const MICRO_PER_USD = 1_000_000;
 
 export async function POST(request, { params }) {
   const { id } = await params;
@@ -41,8 +41,4 @@ export async function POST(request, { params }) {
 
   if (error) return jsonError(500, "topup_failed", error.message);
   return Response.json({ ok: true, result: data });
-}
-
-function jsonError(status, code, message) {
-  return Response.json({ error: { code, message } }, { status });
 }

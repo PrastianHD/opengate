@@ -4,6 +4,7 @@ import Nav from "./components/Nav";
 import Footer from "./components/Footer";
 import ParticleCanvas from "./components/ParticleCanvas";
 import CursorGlow from "./components/CursorGlow";
+import AppProviders from "./components/AppProviders";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -38,13 +39,18 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en" className={`${inter.variable} ${jetbrainsMono.variable}`}>
       <body>
-        <main className="site-shell landing-v2">
-          <ParticleCanvas />
-          <CursorGlow />
-          <Nav />
-          {children}
-          <Footer />
-        </main>
+        <a href="#main-content" className="skip-link">
+          Skip to main content
+        </a>
+        <AppProviders>
+          <div className="site-shell landing-v2">
+            <ParticleCanvas />
+            <CursorGlow />
+            <Nav />
+            <main id="main-content">{children}</main>
+            <Footer />
+          </div>
+        </AppProviders>
       </body>
     </html>
   );

@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 
 export default function HoverCard({
   as: Tag = "div",
@@ -12,8 +12,18 @@ export default function HoverCard({
 }) {
   const ref = useRef(null);
   const rafRef = useRef(0);
+  const [reduced, setReduced] = useState(false);
+
+  useEffect(() => {
+    const mql = window.matchMedia("(prefers-reduced-motion: reduce)");
+    setReduced(mql.matches);
+    const onChange = (e) => setReduced(e.matches);
+    mql.addEventListener?.("change", onChange);
+    return () => mql.removeEventListener?.("change", onChange);
+  }, []);
 
   function handleMouseMove(e) {
+    if (reduced) return;
     const el = ref.current;
     if (!el) return;
     const rect = el.getBoundingClientRect();
@@ -45,8 +55,8 @@ export default function HoverCard({
     <Tag
       ref={ref}
       className={className}
-      onMouseMove={handleMouseMove}
-      onMouseLeave={handleMouseLeave}
+      onMouseMove={reduced ? undefined : handleMouseMove}
+      onMouseLeave={reduced ? undefined : handleMouseLeave}
       {...rest}
     >
       {children}

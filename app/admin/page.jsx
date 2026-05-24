@@ -1,25 +1,26 @@
 import { requireAdminPage } from "@/lib/admin/guard";
+import { formatUsd } from "@/lib/format";
+import EmptyState from "@/app/components/EmptyState";
+import Pill from "@/app/components/Pill";
+import {
+  BarList,
+  DeltaIndicator,
+  Sparkline,
+  bucketByTime,
+  bucketSumByTime,
+} from "@/app/components/Charts";
 
 export const metadata = {
   title: "Admin Overview | OpenGate",
 };
 
-const MICRO_PER_USD = 1_000_000;
-
-function formatUsd(microCents, fractionDigits = 2) {
-  const usd = (microCents || 0) / MICRO_PER_USD;
-  return usd.toLocaleString("en-US", {
-    style: "currency",
-    currency: "USD",
-    maximumFractionDigits: fractionDigits,
-    minimumFractionDigits: 2,
-  });
-}
-
 export default async function AdminOverview() {
   const { sbService } = await requireAdminPage();
-  const since24h = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
-  const since7d = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString();
+  const now = Date.now();
+  const since24h = new Date(now - 24 * 60 * 60 * 1000).toISOString();
+  const since48h = new Date(now - 48 * 60 * 60 * 1000).toISOString();
+  const since7d = new Date(now - 7 * 24 * 60 * 60 * 1000).toISOString();
+  const since14d = new Date(now - 14 * 24 * 60 * 60 * 1000).toISOString();
 
   // Run in parallel — admin uses service role, no RLS.
   const [
@@ -27,8 +28,11 @@ export default async function AdminOverview() {
     { count: keysCount },
     { data: balanceAgg },
     { data: usage24h },
+    { data: usagePrev24h },
     { data: usage7d },
+    { data: usagePrev7d },
     { data: keysHealth },
+    { data: topModels },
   ] = await Promise.all([
     sbService.from("users").select("*", { count: "exact", head: true }),
     sbService
@@ -39,15 +43,29 @@ export default async function AdminOverview() {
     sbService.from("users").select("balance_micro_cents"),
     sbService
       .from("usage_log")
-      .select("cost_micro_cents, status_code, total_tokens, is_stream")
+      .select("cost_micro_cents, status_code, total_tokens, is_stream, created_at")
       .gte("created_at", since24h),
     sbService
       .from("usage_log")
       .select("cost_micro_cents, status_code")
+      .gte("created_at", since48h)
+      .lt("created_at", since24h),
+    sbService
+      .from("usage_log")
+      .select("cost_micro_cents, status_code, created_at")
       .gte("created_at", since7d),
+    sbService
+      .from("usage_log")
+      .select("cost_micro_cents")
+      .gte("created_at", since14d)
+      .lt("created_at", since7d),
     sbService
       .from("upstream_keys")
       .select("id, label, enabled, cooldown_until, providers(slug, name)"),
+    sbService
+      .from("usage_log")
+      .select("cost_micro_cents, models(slug)")
+      .gte("created_at", since7d),
   ]);
 
   const totalBalance =
@@ -63,11 +81,48 @@ export default async function AdminOverview() {
   const revenue7d =
     usage7d?.reduce((s, r) => s + (r.cost_micro_cents || 0), 0) || 0;
 
+  const requestsPrev24h = usagePrev24h?.length || 0;
+  const revenuePrev24h =
+    usagePrev24h?.reduce((s, r) => s + (r.cost_micro_cents || 0), 0) || 0;
+  const revenuePrev7d =
+    usagePrev7d?.reduce((s, r) => s + (r.cost_micro_cents || 0), 0) || 0;
+
   const keysOnCooldown =
     keysHealth?.filter(
       (k) => k.cooldown_until && new Date(k.cooldown_until) > new Date()
     ) || [];
   const keysDisabled = keysHealth?.filter((k) => !k.enabled) || [];
+
+  const start24h = now - 24 * 60 * 60 * 1000;
+  const start7d = now - 7 * 24 * 60 * 60 * 1000;
+  const requestsTrend24h = bucketByTime(
+    usage24h || [],
+    (r) => r.created_at,
+    24,
+    start24h,
+    now
+  );
+  const revenueTrend7d = bucketSumByTime(
+    usage7d || [],
+    (r) => r.created_at,
+    (r) => r.cost_micro_cents || 0,
+    14,
+    start7d,
+    now
+  );
+
+  const modelRevenue = (() => {
+    const byModel = new Map();
+    for (const r of topModels || []) {
+      const slug = r.models?.slug || "—";
+      const cur = byModel.get(slug) || 0;
+      byModel.set(slug, cur + (r.cost_micro_cents || 0));
+    }
+    return Array.from(byModel.entries())
+      .map(([label, value]) => ({ label, value }))
+      .sort((a, b) => b.value - a.value)
+      .slice(0, 6);
+  })();
 
   return (
     <div className="dashboard-page">
@@ -101,6 +156,7 @@ export default async function AdminOverview() {
         <article className="dashboard-stat">
           <span className="dashboard-stat-label">Revenue 24h</span>
           <span className="dashboard-stat-value">{formatUsd(revenue24h, 4)}</span>
+          <DeltaIndicator value={revenue24h} prior={revenuePrev24h} />
           <span className="dashboard-stat-hint">
             Charged to users in the last 24h.
           </span>
@@ -113,6 +169,13 @@ export default async function AdminOverview() {
           <span className="dashboard-stat-value">
             {requests24h.toLocaleString()}
           </span>
+          <DeltaIndicator value={requests24h} prior={requestsPrev24h} />
+          {requests24h > 0 && (
+            <Sparkline
+              values={requestsTrend24h}
+              ariaLabel="Request trend last 24h"
+            />
+          )}
         </article>
         <article className="dashboard-stat">
           <span className="dashboard-stat-label">Tokens 24h</span>
@@ -127,16 +190,44 @@ export default async function AdminOverview() {
         <article className="dashboard-stat">
           <span className="dashboard-stat-label">Revenue 7d</span>
           <span className="dashboard-stat-value">{formatUsd(revenue7d, 4)}</span>
+          <DeltaIndicator value={revenue7d} prior={revenuePrev7d} />
+          {revenue7d > 0 && (
+            <Sparkline
+              values={revenueTrend7d}
+              stroke="var(--success)"
+              fill="rgba(90, 138, 58, 0.10)"
+              ariaLabel="Revenue trend last 7 days"
+            />
+          )}
         </article>
       </div>
+
+      {modelRevenue.length > 0 && (
+        <section className="dashboard-section">
+          <h2 className="dashboard-section-title">Revenue by model · 7d</h2>
+          <div className="dashboard-card">
+            <BarList
+              data={modelRevenue}
+              formatValue={(v) => formatUsd(v, 4)}
+              ariaLabel="Revenue per model last 7 days"
+            />
+          </div>
+        </section>
+      )}
 
       <section className="dashboard-section">
         <h2 className="dashboard-section-title">Upstream key health</h2>
         {keysOnCooldown.length === 0 && keysDisabled.length === 0 ? (
-          <div className="dashboard-empty">
-            <h3>All clear</h3>
-            <p>No upstream keys are on cooldown or disabled.</p>
-          </div>
+          <EmptyState
+            icon={
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+                <path d="M22 4L12 14.01l-3-3" />
+              </svg>
+            }
+            title="All clear"
+            description="No upstream keys are on cooldown or disabled."
+          />
         ) : (
           <div className="dashboard-table-wrap">
             <table className="dashboard-table">
@@ -156,13 +247,7 @@ export default async function AdminOverview() {
                     </td>
                     <td>{k.label}</td>
                     <td>
-                      <span
-                        className={`pill pill-${
-                          !k.enabled ? "expired" : "debit"
-                        }`}
-                      >
-                        {!k.enabled ? "disabled" : "cooldown"}
-                      </span>
+                      <Pill status={!k.enabled ? "disabled" : "cooldown"} />
                     </td>
                     <td>
                       {k.cooldown_until

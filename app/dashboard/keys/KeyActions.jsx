@@ -1,54 +1,37 @@
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useApiAction } from "@/app/components/useApiAction";
+import { useConfirm } from "@/app/components/Confirm";
+import { useToast } from "@/app/components/Toast";
 
 export default function KeyActions({ keyRow }) {
-  const router = useRouter();
-  const [busy, setBusy] = useState(false);
+  const { run, busy } = useApiAction();
+  const confirm = useConfirm();
+  const toast = useToast();
   const isRevoked = !!keyRow.revoked_at;
 
   async function toggleEnabled() {
     if (busy || isRevoked) return;
-    setBusy(true);
-    try {
-      const res = await fetch(`/api/keys/${keyRow.id}`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ enabled: !keyRow.enabled }),
-      });
-      if (!res.ok) {
-        const j = await res.json().catch(() => ({}));
-        alert(j?.error?.message || "Update failed");
-      } else {
-        router.refresh();
-      }
-    } finally {
-      setBusy(false);
+    const result = await run(`/api/keys/${keyRow.id}`, {
+      method: "PATCH",
+      body: { enabled: !keyRow.enabled },
+    });
+    if (result.ok) {
+      toast.success(keyRow.enabled ? "Key disabled" : "Key enabled");
     }
   }
 
   async function revoke() {
     if (busy || isRevoked) return;
-    if (
-      !confirm(
-        `Revoke key "${keyRow.label}"? This cannot be undone — clients using this token will fail.`
-      )
-    ) {
-      return;
-    }
-    setBusy(true);
-    try {
-      const res = await fetch(`/api/keys/${keyRow.id}`, { method: "DELETE" });
-      if (!res.ok) {
-        const j = await res.json().catch(() => ({}));
-        alert(j?.error?.message || "Revoke failed");
-      } else {
-        router.refresh();
-      }
-    } finally {
-      setBusy(false);
-    }
+    const ok = await confirm({
+      title: "Revoke this key?",
+      message: `"${keyRow.label}" will stop working immediately. Clients using this token will fail. This cannot be undone.`,
+      confirmLabel: "Revoke key",
+      destructive: true,
+    });
+    if (!ok) return;
+    const result = await run(`/api/keys/${keyRow.id}`, { method: "DELETE" });
+    if (result.ok) toast.success("Key revoked");
   }
 
   if (isRevoked) {
@@ -63,6 +46,7 @@ export default function KeyActions({ keyRow }) {
         onClick={toggleEnabled}
         disabled={busy}
         title={keyRow.enabled ? "Disable" : "Enable"}
+        aria-pressed={keyRow.enabled}
       >
         {keyRow.enabled ? "Disable" : "Enable"}
       </button>

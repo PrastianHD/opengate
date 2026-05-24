@@ -1,28 +1,11 @@
 import { createClient } from "@/lib/supabase/server";
+import { formatDate, formatUsd } from "@/lib/format";
+import EmptyState from "@/app/components/EmptyState";
+import Pill from "@/app/components/Pill";
 
 export const metadata = {
   title: "Billing | OpenGate",
 };
-
-const MICRO_PER_USD = 1_000_000;
-
-function formatUsd(microCents, fractionDigits = 4) {
-  const usd = (microCents || 0) / MICRO_PER_USD;
-  return usd.toLocaleString("en-US", {
-    style: "currency",
-    currency: "USD",
-    maximumFractionDigits: fractionDigits,
-    minimumFractionDigits: 2,
-  });
-}
-
-function formatDate(iso) {
-  if (!iso) return "—";
-  return new Date(iso).toLocaleString("en-US", {
-    dateStyle: "medium",
-    timeStyle: "short",
-  });
-}
 
 const KIND_LABEL = {
   topup: "Top-up",
@@ -100,6 +83,16 @@ export default async function BillingPage() {
               Your top-ups, usage debits, and adjustments will appear here as a
               ledger.
             </p>
+            <div className="dashboard-empty-actions">
+              <a
+                className="btn btn-primary"
+                href="https://t.me/opengate_bot"
+                target="_blank"
+                rel="noreferrer"
+              >
+                Top up via Telegram
+              </a>
+            </div>
           </div>
         ) : (
           <div className="dashboard-table-wrap">
@@ -122,9 +115,7 @@ export default async function BillingPage() {
                         {formatDate(t.created_at)}
                       </td>
                       <td>
-                        <span className={`pill pill-${t.kind}`}>
-                          {KIND_LABEL[t.kind] || t.kind}
-                        </span>
+                        <Pill status={t.kind} label={KIND_LABEL[t.kind] || t.kind} />
                       </td>
                       <td
                         className={

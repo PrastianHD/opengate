@@ -1,4 +1,5 @@
 import { requireAdminApi } from "@/lib/admin/guard";
+import { jsonError } from "@/lib/api/helpers";
 
 export const runtime = "nodejs";
 
@@ -35,8 +36,4 @@ export async function PATCH(request, { params }) {
     .eq("id", id);
   if (error) return jsonError(500, "update_failed", error.message);
   return Response.json({ ok: true });
-}
-
-function jsonError(status, code, message) {
-  return Response.json({ error: { code, message } }, { status });
 }

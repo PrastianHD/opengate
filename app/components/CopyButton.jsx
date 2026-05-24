@@ -1,16 +1,18 @@
 "use client";
 
 import { useState } from "react";
+import { useToast } from "./Toast";
 
 export default function CopyButton({ text, label = "Copy" }) {
   const [copied, setCopied] = useState(false);
+  const toast = useToast();
 
   async function handleCopy() {
     try {
       await navigator.clipboard.writeText(text);
       setCopied(true);
       setTimeout(() => setCopied(false), 1500);
-    } catch (err) {
+    } catch {
       const ta = document.createElement("textarea");
       ta.value = text;
       ta.style.position = "fixed";
@@ -21,7 +23,9 @@ export default function CopyButton({ text, label = "Copy" }) {
         document.execCommand("copy");
         setCopied(true);
         setTimeout(() => setCopied(false), 1500);
-      } catch {}
+      } catch {
+        toast.error("Couldn't copy. Select the text manually.");
+      }
       document.body.removeChild(ta);
     }
   }

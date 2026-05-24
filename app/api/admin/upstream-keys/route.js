@@ -1,5 +1,6 @@
 import { requireAdminApi } from "@/lib/admin/guard";
 import { encryptUpstreamKey, lastFour } from "@/lib/crypto/upstreamKey";
+import { clampInt, jsonError } from "@/lib/api/helpers";
 
 export const runtime = "nodejs";
 
@@ -49,15 +50,4 @@ export async function POST(request) {
 
   if (error) return jsonError(500, "insert_failed", error.message);
   return Response.json({ id: data.id, ok: true });
-}
-
-function clampInt(v, min, max) {
-  if (v == null || v === "") return null;
-  const n = Number.parseInt(v, 10);
-  if (!Number.isFinite(n)) return null;
-  return Math.max(min, Math.min(max, n));
-}
-
-function jsonError(status, code, message) {
-  return Response.json({ error: { code, message } }, { status });
 }

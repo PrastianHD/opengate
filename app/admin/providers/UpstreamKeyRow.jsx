@@ -1,55 +1,40 @@
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useApiAction } from "@/app/components/useApiAction";
+import { useConfirm } from "@/app/components/Confirm";
+import { useToast } from "@/app/components/Toast";
+import Pill from "@/app/components/Pill";
 
 export default function UpstreamKeyRow({ keyRow }) {
-  const router = useRouter();
-  const [busy, setBusy] = useState(false);
+  const { run, busy } = useApiAction();
+  const confirm = useConfirm();
+  const toast = useToast();
 
   const isCooldown =
     keyRow.cooldown_until && new Date(keyRow.cooldown_until) > new Date();
 
-  async function patch(body) {
-    setBusy(true);
-    try {
-      const res = await fetch(`/api/admin/upstream-keys/${keyRow.id}`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(body),
-      });
-      if (!res.ok) {
-        const j = await res.json().catch(() => ({}));
-        alert(j?.error?.message || "Update failed");
-      } else {
-        router.refresh();
-      }
-    } finally {
-      setBusy(false);
+  async function toggle() {
+    const result = await run(`/api/admin/upstream-keys/${keyRow.id}`, {
+      method: "PATCH",
+      body: { enabled: !keyRow.enabled },
+    });
+    if (result.ok) {
+      toast.success(keyRow.enabled ? "Upstream key disabled" : "Upstream key enabled");
     }
   }
 
   async function remove() {
-    if (
-      !confirm(
-        `Delete upstream key "${keyRow.label}"? This cannot be undone — the gateway will fall back to other keys.`
-      )
-    )
-      return;
-    setBusy(true);
-    try {
-      const res = await fetch(`/api/admin/upstream-keys/${keyRow.id}`, {
-        method: "DELETE",
-      });
-      if (!res.ok) {
-        const j = await res.json().catch(() => ({}));
-        alert(j?.error?.message || "Delete failed");
-      } else {
-        router.refresh();
-      }
-    } finally {
-      setBusy(false);
-    }
+    const ok = await confirm({
+      title: "Delete upstream key?",
+      message: `"${keyRow.label}" will be removed permanently. The gateway will fall back to other keys for this provider.`,
+      confirmLabel: "Delete",
+      destructive: true,
+    });
+    if (!ok) return;
+    const result = await run(`/api/admin/upstream-keys/${keyRow.id}`, {
+      method: "DELETE",
+    });
+    if (result.ok) toast.success("Upstream key deleted");
   }
 
   const status = !keyRow.enabled
@@ -67,17 +52,7 @@ export default function UpstreamKeyRow({ keyRow }) {
         <code>…{keyRow.api_key_last4 || "????"}</code>
       </td>
       <td>
-        <span
-          className={`pill pill-${
-            status === "active"
-              ? "active"
-              : status === "cooldown"
-              ? "debit"
-              : "expired"
-          }`}
-        >
-          {status}
-        </span>
+        <Pill status={status} />
       </td>
       <td>{keyRow.priority}</td>
       <td>{keyRow.weight}</td>
@@ -90,7 +65,7 @@ export default function UpstreamKeyRow({ keyRow }) {
           <button
             type="button"
             className="key-action"
-            onClick={() => patch({ enabled: !keyRow.enabled })}
+            onClick={toggle}
             disabled={busy}
           >
             {keyRow.enabled ? "Disable" : "Enable"}

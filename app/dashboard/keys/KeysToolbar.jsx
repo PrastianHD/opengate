@@ -2,39 +2,47 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { useToast } from "@/app/components/Toast";
 import CreateKeyDialog from "./CreateKeyDialog";
 
-export default function KeysToolbar({ availableModels }) {
+export default function KeysToolbar({ availableModels, variant = "default" }) {
   const router = useRouter();
+  const toast = useToast();
   const [open, setOpen] = useState(false);
   const [plaintext, setPlaintext] = useState(null);
-  const [copied, setCopied] = useState(false);
+  const [revealed, setRevealed] = useState(false);
 
   function handleCreated(plain) {
     setOpen(false);
     setPlaintext(plain);
+    setRevealed(true);
     router.refresh();
+    toast.success("API key created");
   }
 
   async function copy() {
     if (!plaintext) return;
     try {
       await navigator.clipboard.writeText(plaintext);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 1500);
+      toast.success("Token copied to clipboard");
     } catch {
-      /* noop */
+      toast.error("Couldn't copy. Select the token manually.");
     }
+  }
+
+  function maskToken(t) {
+    if (!t) return "";
+    return `${t.slice(0, 8)}${"•".repeat(Math.max(0, t.length - 12))}${t.slice(-4)}`;
   }
 
   return (
     <>
       <button
         type="button"
-        className="btn btn-primary"
+        className={variant === "empty" ? "btn btn-primary" : "btn btn-primary"}
         onClick={() => setOpen(true)}
       >
-        + New key
+        + {variant === "empty" ? "Create your first key" : "New key"}
       </button>
 
       <CreateKeyDialog
@@ -62,9 +70,19 @@ export default function KeysToolbar({ availableModels }) {
             password manager or your client config now.
           </p>
           <div className="key-banner-token">
-            <code>{plaintext}</code>
+            <code aria-label={revealed ? "API token, fully visible" : "API token, masked"}>
+              {revealed ? plaintext : maskToken(plaintext)}
+            </code>
+            <button
+              type="button"
+              className="btn btn-ghost"
+              onClick={() => setRevealed((v) => !v)}
+              aria-pressed={revealed}
+            >
+              {revealed ? "Hide" : "Reveal"}
+            </button>
             <button type="button" className="btn btn-ghost" onClick={copy}>
-              {copied ? "Copied" : "Copy"}
+              Copy
             </button>
           </div>
         </div>

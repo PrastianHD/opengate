@@ -1,82 +1,102 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useApiAction } from "@/app/components/useApiAction";
+import { useConfirm } from "@/app/components/Confirm";
+import { useToast } from "@/app/components/Toast";
+
+const ROLES = [
+  { value: "user", label: "User", hint: "Default — pay-as-you-go." },
+  { value: "reseller", label: "Reseller", hint: "Can issue keys to others." },
+  { value: "admin", label: "Admin", hint: "Full access. Be careful." },
+];
 
 export default function UserActions({ user }) {
-  const router = useRouter();
-  const [busy, setBusy] = useState(false);
+  const { run, busy } = useApiAction();
+  const confirm = useConfirm();
+  const toast = useToast();
+
   const [topupOpen, setTopupOpen] = useState(false);
   const [topupAmount, setTopupAmount] = useState("");
   const [topupNote, setTopupNote] = useState("");
   const [topupErr, setTopupErr] = useState(null);
 
-  async function patch(body) {
-    setBusy(true);
-    try {
-      const res = await fetch(`/api/admin/users/${user.id}`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(body),
-      });
-      if (!res.ok) {
-        const j = await res.json().catch(() => ({}));
-        alert(j?.error?.message || "Update failed");
-      } else {
-        router.refresh();
-      }
-    } finally {
-      setBusy(false);
-    }
-  }
+  const [roleOpen, setRoleOpen] = useState(false);
+  const [pickedRole, setPickedRole] = useState(user.role);
+
+  const [banOpen, setBanOpen] = useState(false);
+  const [banReason, setBanReason] = useState("");
 
   async function submitTopup(e) {
     e.preventDefault();
     setTopupErr(null);
-    setBusy(true);
-    try {
-      const res = await fetch(`/api/admin/users/${user.id}/topup`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          amount_usd: Number(topupAmount),
-          description: topupNote || "Admin top-up",
-        }),
-      });
-      const j = await res.json();
-      if (!res.ok) throw new Error(j?.error?.message || "Top-up failed");
-      setTopupOpen(false);
-      setTopupAmount("");
-      setTopupNote("");
-      router.refresh();
-    } catch (e) {
-      setTopupErr(e.message);
-    } finally {
-      setBusy(false);
-    }
-  }
-
-  async function changeRole() {
-    const next = prompt(
-      `Change role for ${user.email}\nCurrent: ${user.role}\nEnter: user, reseller, admin`,
-      user.role
-    );
-    if (!next || next === user.role) return;
-    if (!["user", "reseller", "admin"].includes(next)) {
-      alert("Invalid role");
+    const amount = Number(topupAmount);
+    if (!Number.isFinite(amount) || amount === 0) {
+      setTopupErr("Amount must be a non-zero number");
       return;
     }
-    await patch({ role: next });
+    const result = await run(`/api/admin/users/${user.id}/topup`, {
+      method: "POST",
+      body: {
+        amount_usd: amount,
+        description: topupNote || "Admin top-up",
+      },
+      silent: true,
+    });
+    if (!result.ok) {
+      setTopupErr(result.error);
+      return;
+    }
+    setTopupOpen(false);
+    setTopupAmount("");
+    setTopupNote("");
+    toast.success(
+      amount > 0
+        ? `Topped up ${user.email} with $${amount.toFixed(2)}`
+        : `Adjusted ${user.email} by $${amount.toFixed(2)}`
+    );
   }
 
-  async function toggleBan() {
-    if (user.banned_at) {
-      if (!confirm(`Unban ${user.email}?`)) return;
-      await patch({ banned: false });
-    } else {
-      const reason = prompt(`Ban ${user.email}\nReason:`, "Abuse");
-      if (!reason) return;
-      await patch({ banned: true, ban_reason: reason });
+  async function submitRole() {
+    if (pickedRole === user.role) {
+      setRoleOpen(false);
+      return;
+    }
+    const result = await run(`/api/admin/users/${user.id}`, {
+      method: "PATCH",
+      body: { role: pickedRole },
+    });
+    if (result.ok) {
+      setRoleOpen(false);
+      toast.success(`Role updated to ${pickedRole}`);
+    }
+  }
+
+  async function unban() {
+    const ok = await confirm({
+      title: `Unban ${user.email}?`,
+      message: "This account will regain full access immediately.",
+      confirmLabel: "Unban",
+    });
+    if (!ok) return;
+    const result = await run(`/api/admin/users/${user.id}`, {
+      method: "PATCH",
+      body: { banned: false },
+    });
+    if (result.ok) toast.success("User unbanned");
+  }
+
+  async function submitBan(e) {
+    e.preventDefault();
+    if (!banReason.trim()) return;
+    const result = await run(`/api/admin/users/${user.id}`, {
+      method: "PATCH",
+      body: { banned: true, ban_reason: banReason.trim() },
+    });
+    if (result.ok) {
+      setBanOpen(false);
+      setBanReason("");
+      toast.success(`${user.email} banned`);
     }
   }
 
@@ -94,7 +114,10 @@ export default function UserActions({ user }) {
         <button
           type="button"
           className="key-action"
-          onClick={changeRole}
+          onClick={() => {
+            setPickedRole(user.role);
+            setRoleOpen(true);
+          }}
           disabled={busy}
         >
           Role
@@ -102,7 +125,7 @@ export default function UserActions({ user }) {
         <button
           type="button"
           className={`key-action ${user.banned_at ? "" : "key-action-danger"}`}
-          onClick={toggleBan}
+          onClick={() => (user.banned_at ? unban() : setBanOpen(true))}
           disabled={busy}
         >
           {user.banned_at ? "Unban" : "Ban"}
@@ -161,6 +184,115 @@ export default function UserActions({ user }) {
                   disabled={busy}
                 >
                   {busy ? "Processing…" : "Apply"}
+                </button>
+              </footer>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {roleOpen && (
+        <div className="modal-backdrop" role="dialog" aria-modal="true">
+          <div className="modal modal-sm">
+            <header className="modal-head">
+              <h2>Change role</h2>
+              <button
+                type="button"
+                className="modal-close"
+                onClick={() => setRoleOpen(false)}
+                aria-label="Close"
+              >
+                ×
+              </button>
+            </header>
+            <div className="modal-body">
+              <p className="modal-message">
+                Select a role for <strong>{user.email}</strong>.
+              </p>
+              <div className="role-picker">
+                {ROLES.map((r) => (
+                  <label key={r.value} className="role-option">
+                    <input
+                      type="radio"
+                      name="role"
+                      value={r.value}
+                      checked={pickedRole === r.value}
+                      onChange={() => setPickedRole(r.value)}
+                    />
+                    <span>
+                      <strong>{r.label}</strong>
+                      <em>{r.hint}</em>
+                    </span>
+                  </label>
+                ))}
+              </div>
+            </div>
+            <footer className="modal-foot">
+              <button
+                type="button"
+                className="btn btn-ghost"
+                onClick={() => setRoleOpen(false)}
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                className="btn btn-primary"
+                onClick={submitRole}
+                disabled={busy}
+              >
+                {busy ? "Saving…" : "Save"}
+              </button>
+            </footer>
+          </div>
+        </div>
+      )}
+
+      {banOpen && (
+        <div className="modal-backdrop" role="dialog" aria-modal="true">
+          <div className="modal modal-sm">
+            <header className="modal-head">
+              <h2>Ban user</h2>
+              <button
+                type="button"
+                className="modal-close"
+                onClick={() => setBanOpen(false)}
+                aria-label="Close"
+              >
+                ×
+              </button>
+            </header>
+            <form onSubmit={submitBan} className="modal-body">
+              <p className="modal-message">
+                <strong>{user.email}</strong> will lose all access immediately.
+                Existing keys keep working but auth will fail.
+              </p>
+              <label className="form-row">
+                <span>Reason</span>
+                <input
+                  type="text"
+                  value={banReason}
+                  onChange={(e) => setBanReason(e.target.value)}
+                  placeholder="Abuse, fraud, etc"
+                  maxLength={500}
+                  required
+                  autoFocus
+                />
+              </label>
+              <footer className="modal-foot">
+                <button
+                  type="button"
+                  className="btn btn-ghost"
+                  onClick={() => setBanOpen(false)}
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="btn btn-danger"
+                  disabled={busy}
+                >
+                  {busy ? "Banning…" : "Ban user"}
                 </button>
               </footer>
             </form>

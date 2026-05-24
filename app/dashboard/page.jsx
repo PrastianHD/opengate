@@ -1,20 +1,9 @@
 import { createClient } from "@/lib/supabase/server";
+import { formatUsd } from "@/lib/format";
 
 export const metadata = {
   title: "Dashboard | OpenGate",
 };
-
-const MICRO_PER_USD = 1_000_000;
-
-function formatUsd(microCents) {
-  const usd = (microCents || 0) / MICRO_PER_USD;
-  return usd.toLocaleString("en-US", {
-    style: "currency",
-    currency: "USD",
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 4,
-  });
-}
 
 export default async function DashboardOverview() {
   const supabase = await createClient();

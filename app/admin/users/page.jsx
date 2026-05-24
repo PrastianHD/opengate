@@ -1,29 +1,12 @@
 import { requireAdminPage } from "@/lib/admin/guard";
+import { escapeLikePattern } from "@/lib/api/helpers";
+import { formatDate, formatUsd } from "@/lib/format";
+import Pill from "@/app/components/Pill";
 import UserActions from "./UserActions";
 
 export const metadata = {
   title: "Users | OpenGate Admin",
 };
-
-const MICRO_PER_USD = 1_000_000;
-
-function formatUsd(microCents, fractionDigits = 2) {
-  const usd = (microCents || 0) / MICRO_PER_USD;
-  return usd.toLocaleString("en-US", {
-    style: "currency",
-    currency: "USD",
-    maximumFractionDigits: fractionDigits,
-    minimumFractionDigits: 2,
-  });
-}
-
-function formatDate(iso) {
-  if (!iso) return "—";
-  return new Date(iso).toLocaleString("en-US", {
-    dateStyle: "medium",
-    timeStyle: "short",
-  });
-}
 
 export default async function AdminUsersPage({ searchParams }) {
   const { sbService } = await requireAdminPage();
@@ -39,7 +22,7 @@ export default async function AdminUsersPage({ searchParams }) {
     .limit(200);
 
   if (q) {
-    query = query.ilike("email", `%${q}%`);
+    query = query.ilike("email", `%${escapeLikePattern(q)}%`);
   }
 
   const { data: users } = await query;
@@ -76,6 +59,13 @@ export default async function AdminUsersPage({ searchParams }) {
               ? `No accounts match "${q}".`
               : "Once people sign in with Google, they'll appear here."}
           </p>
+          {q && (
+            <div className="dashboard-empty-actions">
+              <a className="btn btn-ghost" href="/admin/users">
+                Clear filter
+              </a>
+            </div>
+          )}
         </div>
       ) : (
         <div className="dashboard-table-wrap">
@@ -101,27 +91,15 @@ export default async function AdminUsersPage({ searchParams }) {
                       <div className="text-dim user-email">{u.email}</div>
                     </td>
                     <td>
-                      <span
-                        className={`pill pill-${
-                          u.role === "admin"
-                            ? "active"
-                            : u.role === "reseller"
-                            ? "debit"
-                            : "disabled"
-                        }`}
-                      >
-                        {u.role}
-                      </span>
+                      <Pill status={u.role} />
                     </td>
                     <td>{formatUsd(u.balance_micro_cents, 4)}</td>
                     <td>{u.rpm_cap || "default"}</td>
                     <td>
                       {banned ? (
-                        <span className="pill pill-revoked" title={u.ban_reason}>
-                          banned
-                        </span>
+                        <Pill status="banned" title={u.ban_reason} />
                       ) : (
-                        <span className="pill pill-active">active</span>
+                        <Pill status="active" />
                       )}
                     </td>
                     <td>{formatDate(u.created_at)}</td>

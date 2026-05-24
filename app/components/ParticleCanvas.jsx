@@ -7,23 +7,37 @@ export default function ParticleCanvas() {
   const mouseRef = useRef({ x: -9999, y: -9999, active: false });
 
   useEffect(() => {
+    if (
+      typeof window !== "undefined" &&
+      window.matchMedia("(prefers-reduced-motion: reduce)").matches
+    ) {
+      return;
+    }
+
     const canvas = canvasRef.current;
     if (!canvas) return;
     const ctx = canvas.getContext("2d");
     let animationId;
     let particles = [];
 
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+
     const colors = ["#c1272d", "#e8a838", "#8b3a3f"];
     const MOUSE_RADIUS = 160;
     const REPEL_STRENGTH = 0.6;
 
     function resize() {
-      canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight;
-      const count = Math.min(80, Math.floor((canvas.width * canvas.height) / 22000));
+      const w = window.innerWidth;
+      const h = window.innerHeight;
+      canvas.width = w * dpr;
+      canvas.height = h * dpr;
+      canvas.style.width = `${w}px`;
+      canvas.style.height = `${h}px`;
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      const count = Math.min(80, Math.floor((w * h) / 22000));
       particles = Array.from({ length: count }, () => ({
-        x: Math.random() * canvas.width,
-        y: Math.random() * canvas.height,
+        x: Math.random() * w,
+        y: Math.random() * h,
         vx: (Math.random() - 0.5) * 0.3,
         vy: (Math.random() - 0.5) * 0.3,
         baseRadius: Math.random() * 1.6 + 0.5,
@@ -51,7 +65,9 @@ export default function ParticleCanvas() {
     }
 
     function animate() {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      const w = canvas.width / dpr;
+      const h = canvas.height / dpr;
+      ctx.clearRect(0, 0, w, h);
       const mx = mouseRef.current.x;
       const my = mouseRef.current.y;
       const mouseActive = mouseRef.current.active;
@@ -86,10 +102,10 @@ export default function ParticleCanvas() {
         if (Math.abs(p.vx) < 0.05) p.vx += (Math.random() - 0.5) * 0.05;
         if (Math.abs(p.vy) < 0.05) p.vy += (Math.random() - 0.5) * 0.05;
 
-        if (p.x < 0) p.x = canvas.width;
-        if (p.x > canvas.width) p.x = 0;
-        if (p.y < 0) p.y = canvas.height;
-        if (p.y > canvas.height) p.y = 0;
+        if (p.x < 0) p.x = w;
+        if (p.x > w) p.x = 0;
+        if (p.y < 0) p.y = h;
+        if (p.y > h) p.y = 0;
 
         ctx.beginPath();
         ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
@@ -138,7 +154,7 @@ export default function ParticleCanvas() {
     resize();
     animate();
     window.addEventListener("resize", resize);
-    window.addEventListener("mousemove", handleMouseMove);
+    window.addEventListener("mousemove", handleMouseMove, { passive: true });
     window.addEventListener("mouseleave", handleMouseLeave);
 
     return () => {

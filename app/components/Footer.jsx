@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 
 export default function Footer() {
@@ -7,7 +8,7 @@ export default function Footer() {
         <div className="footer-brand">
           <div className="footer-brand-row">
             <span className="footer-mark">
-              <img src="/logo.svg" alt="" />
+              <Image src="/logo.svg" alt="" width={32} height={32} />
             </span>
             <strong>OpenGate</strong>
           </div>
@@ -31,7 +32,7 @@ export default function Footer() {
             <h5>Resources</h5>
             <a href="/status">
               <span className="footer-status">
-                <span className="status-dot" />
+                <span className="status-dot" aria-hidden="true" />
                 Status
               </span>
             </a>

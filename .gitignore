@@ -16,3 +16,7 @@ CLAUDE.md
 # Supabase local
 supabase/.branches
 supabase/.temp
+
+foto/
+
+package-lock.json

@@ -16,6 +16,17 @@ export default function CountUp({
   useEffect(() => {
     const el = ref.current;
     if (!el) return;
+
+    const reduced =
+      typeof window !== "undefined" &&
+      window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+    if (reduced) {
+      setValue(end);
+      startedRef.current = true;
+      return;
+    }
+
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {

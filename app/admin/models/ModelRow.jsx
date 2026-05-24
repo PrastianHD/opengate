@@ -1,56 +1,39 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useApiAction } from "@/app/components/useApiAction";
+import { useToast } from "@/app/components/Toast";
+import Pill from "@/app/components/Pill";
 
 export default function ModelRow({ model }) {
-  const router = useRouter();
-  const [busy, setBusy] = useState(false);
+  const { run, busy, error, setError } = useApiAction();
+  const toast = useToast();
   const [editing, setEditing] = useState(false);
   const [inputPrice, setInputPrice] = useState(model.input_price_per_m_usd);
   const [outputPrice, setOutputPrice] = useState(model.output_price_per_m_usd);
-  const [error, setError] = useState(null);
-
-  async function patch(body) {
-    setBusy(true);
-    try {
-      const res = await fetch(`/api/admin/models/${model.id}`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(body),
-      });
-      if (!res.ok) {
-        const j = await res.json().catch(() => ({}));
-        alert(j?.error?.message || "Update failed");
-      } else {
-        router.refresh();
-      }
-    } finally {
-      setBusy(false);
-    }
-  }
 
   async function savePrice(e) {
     e.preventDefault();
-    setError(null);
-    setBusy(true);
-    try {
-      const res = await fetch(`/api/admin/models/${model.id}`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          input_price_per_m_usd: Number(inputPrice),
-          output_price_per_m_usd: Number(outputPrice),
-        }),
-      });
-      const j = await res.json();
-      if (!res.ok) throw new Error(j?.error?.message || "Save failed");
+    const result = await run(`/api/admin/models/${model.id}`, {
+      method: "PATCH",
+      body: {
+        input_price_per_m_usd: Number(inputPrice),
+        output_price_per_m_usd: Number(outputPrice),
+      },
+    });
+    if (result.ok) {
       setEditing(false);
-      router.refresh();
-    } catch (e) {
-      setError(e.message);
-    } finally {
-      setBusy(false);
+      toast.success("Pricing saved");
+    }
+  }
+
+  async function toggleEnabled() {
+    const result = await run(`/api/admin/models/${model.id}`, {
+      method: "PATCH",
+      body: { enabled: !model.enabled },
+    });
+    if (result.ok) {
+      toast.success(model.enabled ? "Model disabled" : "Model enabled");
     }
   }
 
@@ -64,17 +47,7 @@ export default function ModelRow({ model }) {
       </td>
       <td>{model.providers?.name}</td>
       <td>
-        <span
-          className={`pill pill-${
-            model.tier === "flagship"
-              ? "active"
-              : model.tier === "standard"
-              ? "debit"
-              : "disabled"
-          }`}
-        >
-          {model.tier}
-        </span>
+        <Pill status={model.tier} />
       </td>
       <td>
         {editing ? (
@@ -105,9 +78,7 @@ export default function ModelRow({ model }) {
         )}
       </td>
       <td>
-        <span className={`pill pill-${model.enabled ? "active" : "expired"}`}>
-          {model.enabled ? "enabled" : "disabled"}
-        </span>
+        <Pill status={model.enabled ? "enabled" : "disabled"} />
       </td>
       <td>
         {editing ? (
@@ -151,7 +122,7 @@ export default function ModelRow({ model }) {
               className={`key-action ${
                 model.enabled ? "key-action-danger" : ""
               }`}
-              onClick={() => patch({ enabled: !model.enabled })}
+              onClick={toggleEnabled}
               disabled={busy}
             >
               {model.enabled ? "Disable" : "Enable"}

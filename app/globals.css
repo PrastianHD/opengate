@@ -4671,3 +4671,117 @@ button {
     grid-template-columns: 1fr;
   }
 }
+
+/* ── Responsive: currency toggle ── */
+@media (max-width: 540px) {
+  .currency-toggle {
+    width: 100%;
+  }
+  .currency-btn {
+    flex: 1;
+    padding: 10px 16px;
+    font-size: 13px;
+  }
+  .pricing-currency-row {
+    padding: 0 4px;
+  }
+  .package-price {
+    font-size: 18px;
+  }
+  .package-token {
+    font-size: 13px;
+  }
+  .rate-card {
+    padding: 20px 16px;
+  }
+  .rate-head h4 {
+    font-size: 15px;
+  }
+  .rate-desc {
+    font-size: 13px;
+  }
+  .rate-value {
+    font-size: 15px;
+  }
+  .rate-meta {
+    flex-wrap: wrap;
+    gap: 4px 8px;
+    font-size: 11px;
+  }
+  .calc-card {
+    border-radius: 12px;
+  }
+  .calc-head h3 {
+    font-size: 17px;
+  }
+  .calc-breakdown {
+    gap: 6px;
+  }
+  .calc-result {
+    padding: 16px;
+  }
+}
+
+/* ── Responsive: tablet improvements ── */
+@media (min-width: 701px) and (max-width: 900px) {
+  .package-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+  }
+  .rate-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+  }
+  .footer-cols {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px;
+  }
+}
+
+/* ── Responsive: small phone ── */
+@media (max-width: 380px) {
+  .hero-copy h1 {
+    font-size: 1.5rem;
+  }
+  .hero-text {
+    font-size: 14px;
+  }
+  .hero-cta {
+    flex-direction: column;
+  }
+  .hero-cta a {
+    width: 100%;
+    justify-content: center;
+  }
+  .section-heading h2 {
+    font-size: 1.4rem;
+  }
+  .section-heading p {
+    font-size: 13px;
+  }
+  .package-card {
+    padding: 16px 14px;
+  }
+  .package-name {
+    font-size: 20px;
+  }
+  .package-price {
+    font-size: 16px;
+  }
+  .metric-value {
+    font-size: 1.3rem;
+  }
+  .metric-label {
+    font-size: 10px;
+  }
+  .footer-inner {
+    padding: 28px 16px 20px;
+  }
+  .footer-cols {
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+  .footer-col:last-child {
+    grid-column: 1 / -1;
+  }
+}

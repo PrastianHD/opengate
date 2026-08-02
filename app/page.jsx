@@ -114,8 +114,8 @@ export default function HomePage() {
           <HoverCard className="code-card">
             <b>Drop-in integrations</b>
             <p>
-              Use one base URL across compatible clients like Cursor, Continue,
-              Cline, Roo Code, OpenCode, and custom backend services.
+              Use one base URL across compatible clients like Claude Code, Cursor,
+              Continue, Cline, Roo Code, OpenCode, and custom backend services.
             </p>
           </HoverCard>
           <HoverCard className="code-card">

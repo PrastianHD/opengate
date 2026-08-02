@@ -1,3 +1,6 @@
+"use client";
+
+import { useState } from "react";
 import PricingCalculator from "../components/PricingCalculator";
 import { JsonLd } from "../components/JsonLd";
 import { MODELS, PACKAGES } from "@/lib/catalog";
@@ -11,9 +14,32 @@ export const metadata = {
   },
 };
 
+const IDR_PER_USD = 17_800;
+
+// ── Currency Toggle ──
+
+function CurrencyToggle({ currency, setCurrency }) {
+  return (
+    <div className="currency-toggle">
+      <button
+        className={`currency-btn${currency === "USD" ? " active" : ""}`}
+        onClick={() => setCurrency("USD")}
+      >
+        USD
+      </button>
+      <button
+        className={`currency-btn${currency === "IDR" ? " active" : ""}`}
+        onClick={() => setCurrency("IDR")}
+      >
+        IDR
+      </button>
+    </div>
+  );
+}
+
 // ── Token Packages ──
 
-function PackageCards() {
+function PackageCards({ currency }) {
   return (
     <div className="package-grid">
       {PACKAGES.map((p) => (
@@ -23,7 +49,11 @@ function PackageCards() {
         >
           {p.featured && <div className="package-badge">Most Popular</div>}
           <div className="package-name">{p.label}</div>
-          <div className="package-price">{p.priceLabel}</div>
+          <div className="package-price">
+            {currency === "USD"
+              ? `$${(p.price / IDR_PER_USD).toFixed(2)}`
+              : p.priceLabel}
+          </div>
           <div className="package-token">
             {p.token.toLocaleString("id-ID")} tokens
           </div>
@@ -47,7 +77,10 @@ function PackageCards() {
 
 // ── Model Rate Card ──
 
-function ModelRateCard({ model }) {
+function ModelRateCard({ model, currency }) {
+  const inputIDR = Math.round(model.inputPrice * IDR_PER_USD);
+  const outputIDR = Math.round(model.outputPrice * IDR_PER_USD);
+
   return (
     <div className="rate-card">
       <div className="rate-head">
@@ -61,11 +94,19 @@ function ModelRateCard({ model }) {
       <div className="rate-prices">
         <div className="rate-price-col">
           <span className="rate-label">Input / 1M tokens</span>
-          <span className="rate-value">Rp {Math.round(model.inputPrice * 18000).toLocaleString("id-ID")}</span>
+          <span className="rate-value">
+            {currency === "USD"
+              ? `$${model.inputPrice.toFixed(2)}`
+              : `Rp ${inputIDR.toLocaleString("id-ID")}`}
+          </span>
         </div>
         <div className="rate-price-col">
           <span className="rate-label">Output / 1M tokens</span>
-          <span className="rate-value">Rp {Math.round(model.outputPrice * 18000).toLocaleString("id-ID")}</span>
+          <span className="rate-value">
+            {currency === "USD"
+              ? `$${model.outputPrice.toFixed(2)}`
+              : `Rp ${outputIDR.toLocaleString("id-ID")}`}
+          </span>
         </div>
       </div>
       <div className="rate-meta">
@@ -85,6 +126,8 @@ function ModelRateCard({ model }) {
 // ── Page ──
 
 export default function PricingPage() {
+  const [currency, setCurrency] = useState("USD");
+
   return (
     <>
       <JsonLd
@@ -108,31 +151,36 @@ export default function PricingPage() {
       </div>
 
       <section className="pricing-section">
+        <div className="pricing-currency-row">
+          <CurrencyToggle currency={currency} setCurrency={setCurrency} />
+        </div>
 
         {/* ── Packages ── */}
         <div className="pricing-subheading">
           <h3>Token Packages</h3>
           <p>Buy tokens via Telegram bot. Higher packages = more bonus.</p>
         </div>
-        <PackageCards />
+        <PackageCards currency={currency} />
 
         {/* ── Rate Card ── */}
         <div className="pricing-subheading">
           <h3>Per-Model Rates</h3>
           <p>
-            Pay-as-you-go. Use tokens from your balance. Rates shown in IDR
-            (approximate, 1 USD ≈ Rp 15.800).
+            Pay-as-you-go. Use tokens from your balance.{" "}
+            {currency === "USD"
+              ? "1 USD ≈ Rp 17,800"
+              : "Rates shown in IDR (1 USD ≈ Rp 17,800)"}
           </p>
         </div>
         <div className="rate-grid">
           {MODELS.map((m) => (
-            <ModelRateCard key={m.slug} model={m} />
+            <ModelRateCard key={m.slug} model={m} currency={currency} />
           ))}
         </div>
 
         {/* ── Calculator ── */}
         <div className="calc-section">
-          <PricingCalculator />
+          <PricingCalculator currency={currency} />
         </div>
       </section>
     </>

@@ -1690,6 +1690,39 @@ button {
   font-size: 15px;
 }
 
+/* ── Pricing: currency toggle ── */
+.pricing-currency-row {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 32px;
+}
+.currency-toggle {
+  display: inline-flex;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 4px;
+  gap: 2px;
+}
+.currency-btn {
+  padding: 8px 20px;
+  border: none;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--text-muted);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.currency-btn.active {
+  background: var(--primary);
+  color: #fff;
+}
+.currency-btn:hover:not(.active) {
+  background: var(--border);
+}
+
 /* ── Pricing: package cards ── */
 .package-grid {
   display: grid;

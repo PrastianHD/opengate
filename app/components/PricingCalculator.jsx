@@ -18,7 +18,7 @@ const PRESETS = [
   { label: "Scale", input: 100_000_000, output: 30_000_000 },
 ];
 
-const IDR_PER_USD = 18_000;
+const IDR_PER_USD = 17_800;
 
 function format(n) {
   if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(n % 1_000_000 === 0 ? 0 : 1)}M`;
@@ -31,7 +31,12 @@ function formatIDR(n) {
   return `Rp ${Math.round(n).toLocaleString("id-ID")}`;
 }
 
-export default function PricingCalculator() {
+function formatUSD(n) {
+  if (n < 0.01) return "$0.00";
+  return `$${n.toFixed(2)}`;
+}
+
+export default function PricingCalculator({ currency = "USD" }) {
   const [modelIdx, setModelIdx] = useState(0);
   const [inputTokens, setInputTokens] = useState(1_000_000);
   const [outputTokens, setOutputTokens] = useState(300_000);
@@ -55,7 +60,7 @@ export default function PricingCalculator() {
     <div className="calc-card">
       <div className="calc-head">
         <h3>Estimate your cost</h3>
-        <p>Pick a model, adjust tokens. See price in USD and IDR.</p>
+        <p>Pick a model, adjust tokens. See price in {currency}.</p>
       </div>
 
       <div className="calc-presets">
@@ -143,20 +148,34 @@ export default function PricingCalculator() {
             <span className="num">
               {format(inputTokens)} × ${model.inputPrice}/M
             </span>
-            <span className="num">{formatIDR(inputCost * IDR_PER_USD)}</span>
+            <span className="num">
+              {currency === "USD"
+                ? formatUSD(inputCost)
+                : formatIDR(inputCost * IDR_PER_USD)}
+            </span>
           </div>
           <div className="calc-line">
             <span>Output</span>
             <span className="num">
               {format(outputTokens)} × ${model.outputPrice}/M
             </span>
-            <span className="num">{formatIDR(outputCost * IDR_PER_USD)}</span>
+            <span className="num">
+              {currency === "USD"
+                ? formatUSD(outputCost)
+                : formatIDR(outputCost * IDR_PER_USD)}
+            </span>
           </div>
         </div>
         <div className="calc-total">
           <span>Estimated monthly</span>
-          <strong>{formatIDR(totalIDR)}</strong>
-          <small>~${total.toFixed(2)} USD</small>
+          <strong>
+            {currency === "USD" ? formatUSD(total) : formatIDR(totalIDR)}
+          </strong>
+          {currency === "USD" ? (
+            <small>~{formatIDR(totalIDR)}</small>
+          ) : (
+            <small>~{formatUSD(total)}</small>
+          )}
         </div>
       </div>
     </div>

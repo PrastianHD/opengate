@@ -1,5 +1,6 @@
 // /beli — Buy token package with QRIS payment via Paywuz.
 
+import { InputFile } from "grammy";
 import { PACKAGES } from "../../lib/catalog.js";
 import { formatIDR } from "../lib/format.js";
 import { balanceToIDR } from "../lib/user.js";
@@ -80,7 +81,7 @@ export function buyCallbackHandler() {
           console.log("[beli] QR buffer size:", qrBuffer?.length);
 
           await ctx.replyWithPhoto(
-            { source: qrBuffer },
+            new InputFile(qrBuffer, "qris.png"),
             {
               caption,
               parse_mode: "Markdown",

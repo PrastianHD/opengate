@@ -64,43 +64,48 @@ export function buyCallbackHandler() {
         expires_at: tx.expiresAt,
       });
 
-      // Send payment info
       const caption =
         `💳 *Pembayaran QRIS*\n\n` +
         `📦 Paket: *${pkg.label}*\n` +
         `💰 Nominal: *${formatIDR(pkg.price)}*\n` +
         `⏰ Expired: ${new Date(tx.expiresAt).toLocaleString("id-ID")}\n\n` +
-        `_Setelah bayar, saldo akan otomatis terisi._`;
+        `_Scan QR di bawah ini untuk bayar._\n` +
+        `_Saldo otomatis terisi setelah pembayaran berhasil._`;
 
-      const keyboard = {
-        inline_keyboard: [
-          [{ text: "💳 Bayar Sekarang", url: tx.paymentUrl }],
-          [{ text: "🔄 Cek Status", callback_data: `checkpay:${orderId}` }],
-        ],
-      };
-
-      // Try to send QR image, fallback to text if fails
+      // Send QR image with details
       if (tx.paymentNumber) {
         try {
+          console.log("[beli] Generating QR for:", tx.paymentNumber?.substring(0, 30) + "...");
           const qrBuffer = await generateQR(tx.paymentNumber);
+          console.log("[beli] QR buffer size:", qrBuffer?.length);
+
           await ctx.replyWithPhoto(
             { source: qrBuffer },
             {
-              caption: caption + `\n\n🔗 Atau bayar langsung: ${tx.paymentUrl}`,
+              caption,
               parse_mode: "Markdown",
-              reply_markup: keyboard,
+              reply_markup: {
+                inline_keyboard: [
+                  [{ text: "🔄 Cek Status", callback_data: `checkpay:${orderId}` }],
+                ],
+              },
             }
           );
           return;
         } catch (qrErr) {
-          console.error("[beli] QR generation failed, sending text:", qrErr.message);
+          console.error("[beli] QR sendPhoto failed:", qrErr.message);
         }
       }
 
-      // Fallback: send text with payment URL
-      ctx.reply(caption + `\n\n🔗 Bayar di sini: ${tx.paymentUrl}`, {
+      // Fallback: text only
+      ctx.reply(caption + `\n\n⚠️ QR tidak tersedia. Bayar di: ${tx.paymentUrl}`, {
         parse_mode: "Markdown",
-        reply_markup: keyboard,
+        reply_markup: {
+          inline_keyboard: [
+            [{ text: "💳 Bayar Sekarang", url: tx.paymentUrl }],
+            [{ text: "🔄 Cek Status", callback_data: `checkpay:${orderId}` }],
+          ],
+        },
       });
     } catch (err) {
       console.error("[beli] Paywuz error:", err);

@@ -13,8 +13,17 @@
     "@supabase/supabase-js": "^2.106.0",
     "@upstash/ratelimit": "^2.0.8",
     "@upstash/redis": "^1.38.0",
+    "dotenv": "^17.4.2",
+    "grammy": "^1.45.1",
     "next": "^15.0.0",
+    "paywuz-sdk": "^1.0.0",
+    "qrcode": "^1.5.4",
     "react": "^19.0.0",
     "react-dom": "^19.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "20.17.6",
+    "@types/react": "19.2.18",
+    "typescript": "5.8.2"
   }
 }

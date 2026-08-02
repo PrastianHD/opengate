@@ -7,7 +7,6 @@ export default function IntegrationLogos() {
     { name: "OpenCode", letters: "Oc" },
     { name: "LangChain", letters: "Lc" },
     { name: "LlamaIndex", letters: "Li" },
-    { name: "Vercel AI SDK", letters: "Vc" },
   ];
 
   return (

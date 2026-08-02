@@ -1,0 +1,171 @@
+Rekap Proyek OpenGate
+
+✅ Yang Sudah Selesai
+
+┌────────────┬────────────┬────────────────────────────────────────────┐
+│  Komponen  │   Status   │                   Detail                   │
+├────────────┼────────────┼────────────────────────────────────────────┤
+│ Gateway    │ ✅ Working │ Auth → Rate Limit → Model Resolution →     │
+│ Proxy      │            │ Upstream → Billing                         │
+├────────────┼────────────┼────────────────────────────────────────────┤
+│ Database   │ ✅         │ 4 models, providers, upstream keys, users, │
+│            │ Populated  │  admin                                     │
+├────────────┼────────────┼────────────────────────────────────────────┤
+│ API Key    │ ✅ Working │ ogt-xxx → SHA-256 → DB lookup              │
+│ Auth       │            │                                            │
+├────────────┼────────────┼────────────────────────────────────────────┤
+│ Model      │ ✅ 60s TTL │ Mengurangi Supabase round trips            │
+│ Caching    │            │                                            │
+├────────────┼────────────┼────────────────────────────────────────────┤
+│ Rate       │ ✅         │ Graceful saat Redis down                   │
+│ Limiter    │ Fail-open  │                                            │
+├────────────┼────────────┼────────────────────────────────────────────┤
+│ Async      │ ✅         │ Non-blocking response                      │
+│ Billing    │            │                                            │
+├────────────┼────────────┼────────────────────────────────────────────┤
+│ Landing    │ ✅         │ Hero + features + CTA ke bot               │
+│ Page       │            │                                            │
+├────────────┼────────────┼────────────────────────────────────────────┤
+│ Docs Page  │ ✅         │ Quickstart, streaming, tool calling, rate  │
+│            │            │ limits, billing, SDKs                      │
+├────────────┼────────────┼────────────────────────────────────────────┤
+│ Models     │ ✅         │ 4 model cards + table view + filters       │
+│ Page       │            │                                            │
+├────────────┼────────────┼────────────────────────────────────────────┤
+│ Pricing    │ ✅         │ Package cards + rate cards + calculator    │
+│ Page       │            │                                            │
+├────────────┼────────────┼────────────────────────────────────────────┤
+│ Status     │ ✅         │ Gateway + model status display             │
+│ Page       │            │                                            │
+├────────────┼────────────┼────────────────────────────────────────────┤
+│ Health     │ ✅         │ /api/health untuk keep-alive Supabase      │
+│ Check      │            │                                            │
+├────────────┼────────────┼────────────────────────────────────────────┤
+│ Deploy     │ ✅         │ Caddyfile, ecosystem.config.cjs,           │
+│ Config     │            │ install.sh                                 │
+└────────────┴────────────┴────────────────────────────────────────────┘
+
+📊 Database State
+
+┌───────────────┬──────┬─────────────────────────────────────┐
+│     Table     │ Rows │               Status                │
+├───────────────┼──────┼─────────────────────────────────────┤
+│ providers     │ 8    │ 1 enabled (9router), 7 disabled     │
+├───────────────┼──────┼─────────────────────────────────────┤
+│ models        │ 15   │ 4 enabled, 11 disabled              │
+├───────────────┼──────┼─────────────────────────────────────┤
+│ upstream_keys │ 2    │ 1 active (cooldown issue - balance) │
+├───────────────┼──────┼─────────────────────────────────────┤
+│ gateway_keys  │ 4    │ Active                              │
+├───────────────┼──────┼─────────────────────────────────────┤
+│ users         │ 5    │ 1 admin, 4 users                    │
+└───────────────┴──────┴─────────────────────────────────────┘
+
+💰 4 Model Fix
+
+┌─────────────────────┬──────────┬────────────┬─────────────┬──────────┐
+│        Model        │   Tier   │   Harga    │   Harga     │ Upstream │
+│                     │          │   Input    │   Output    │          │
+├─────────────────────┼──────────┼────────────┼─────────────┼──────────┤
+│ Deepseek V4 Flash   │ Fast     │ Rp 3.060/M │ Rp 6.120/M  │ 9Router  │
+├─────────────────────┼──────────┼────────────┼─────────────┼──────────┤
+│ Mimo V2.5           │ Fast     │ Rp 1.800/M │ Rp 3.600/M  │ 9Router  │
+├─────────────────────┼──────────┼────────────┼─────────────┼──────────┤
+│ Nemotron 3 Ultra    │ Standard │ Rp 4.500/M │ Rp 9.000/M  │ 9Router  │
+│ 550B                │          │            │             │          │
+├─────────────────────┼──────────┼────────────┼─────────────┼──────────┤
+│ Gemma 4 31B         │ Standard │ Rp 3.600/M │ Rp 7.200/M  │ 9Router  │
+└─────────────────────┴──────────┴────────────┴─────────────┴──────────┘
+
+💸 Pricing (Hybrid)
+
+┌─────────┬───────┬────────────┬───────┐
+│  Paket  │ Token │   Harga    │ Bonus │
+├─────────┼───────┼────────────┼───────┤
+│ Starter │ 10M   │ Rp 5.000   │ 0%    │
+├─────────┼───────┼────────────┼───────┤
+│ Basic   │ 50M   │ Rp 18.000  │ +10%  │
+├─────────┼───────┼────────────┼───────┤
+│ Pro     │ 100M  │ Rp 30.000  │ +20%  │
+├─────────┼───────┼────────────┼───────┤
+│ Power   │ 500M  │ Rp 120.000 │ +30%  │
+└─────────┴───────┴────────────┴───────┘
+
+---
+🎯 Rencana Fase Selanjutnya
+
+Fase 1: Telegram Bot (Prioritas)
+
+Ini yang bikin mulai bisa jualan.
+
+┌───────────────────┬──────────┬────────────────────────────────────────┐
+│       Item        │ Estimasi │               Keterangan               │
+├───────────────────┼──────────┼────────────────────────────────────────┤
+│ Bot setup         │ 1 hari   │ /start, /help, /model                  │
+│ (grammY)          │          │                                        │
+├───────────────────┼──────────┼────────────────────────────────────────┤
+│ QRIS payment      │ 2-3 hari │ Midtrans/saweria API → invoice →       │
+│                   │          │ webhook                                │
+├───────────────────┼──────────┼────────────────────────────────────────┤
+│ /beli flow        │ 1 hari   │ Pilih paket → bayar → quota masuk      │
+├───────────────────┼──────────┼────────────────────────────────────────┤
+│ /buat-key         │ 0.5 hari │ Generate + hash + tampilkan di chat    │
+├───────────────────┼──────────┼────────────────────────────────────────┤
+│ /cek              │ 0.5 hari │ Sisa quota + usage                     │
+├───────────────────┼──────────┼────────────────────────────────────────┤
+│ /topup            │ 0.5 hari │ Quick topup                            │
+├───────────────────┼──────────┼────────────────────────────────────────┤
+│ Total             │ ~6 hari  │                                        │
+└───────────────────┴──────────┴────────────────────────────────────────┘
+
+Fase 2: Admin Bot (Week 2)
+
+Kamu sendiri butuh ini untuk manage user.
+
+┌───────────────┬──────────┐
+│     Item      │ Estimasi │
+├───────────────┼──────────┤
+│ /admin-rekap  │ 0.5 hari │
+├───────────────┼──────────┤
+│ /admin-users  │ 0.5 hari │
+├───────────────┼──────────┤
+│ /admin-revoke │ 0.5 hari │
+├───────────────┼──────────┤
+│ /admin-topup  │ 0.5 hari │
+├───────────────┼──────────┤
+│ Total         │ ~2 hari  │
+└───────────────┴──────────┘
+
+Fase 3: Revenue (Week 3)
+
+Bot + Gateway = sudah bisa jualan.
+
+┌─────────────────┬────────────────────────────────────────────┐
+│      Item       │                 Keterangan                 │
+├─────────────────┼────────────────────────────────────────────┤
+│ Test end-to-end │ Bot → bayar → key → pakai di OpenAI client │
+├─────────────────┼────────────────────────────────────────────┤
+│ Pricing tuning  │ Naik/turun harga berdasarkan respons pasar │
+├─────────────────┼────────────────────────────────────────────┤
+│ Model tambahan  │ Cari method lain untuk tambah model        │
+└─────────────────┴────────────────────────────────────────────┘
+
+Fase 4: Dashboard User (Nanti)
+
+Skip dulu. Dashboard ribet, jarang dipakai. Tambah kalau user minta.
+
+---
+⚠️ Blocker Saat Ini
+
+1. 9Router/Aihubmix balance insufficient — key kena cooldown. Perlu top up.
+2. Telegram bot belum dibuat — ini Fase 1 utama.
+3. QRIS payment belum integrate — butuh payment gateway (Midtrans/Saweria).
+
+---
+Rekomendasi: Mulai Fase 1 (Telegram bot) sekarang. Bot + QRIS = revenue.
+
+PS C:\Website\opengate> claude --resume 2f0cd159-49d0-455d-af6b-b4b0a6790246 --dangerously-skip-permissions
+
+Resume this session with:
+claude --resume 2f0cd159-49d0-455d-af6b-b4b0a6790246
+PS C:\Website\opengate> 

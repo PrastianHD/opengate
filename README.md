@@ -44,7 +44,7 @@ This repository contains the **public landing site** built with Next.js 15, Reac
 
 ### Trust signals
 - Live latency widget in metrics strip (2.3M req/day · 99.9% uptime · 247ms latency)
-- Drop-in integration logos (Cursor, Continue, Cline, Roo Code, OpenCode, LangChain, LlamaIndex, Vercel AI SDK)
+- Drop-in integration logos (Cursor, Continue, Cline, Roo Code, OpenCode, LangChain, LlamaIndex)
 - Status link with pulsing online indicator in footer
 
 ## Project structure

@@ -5,6 +5,7 @@ import Footer from "./components/Footer";
 import ParticleCanvas from "./components/ParticleCanvas";
 import CursorGlow from "./components/CursorGlow";
 import AppProviders from "./components/AppProviders";
+import { JsonLd } from "./components/JsonLd";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -19,8 +20,38 @@ const jetbrainsMono = JetBrains_Mono({
 });
 
 export const metadata = {
-  title: "OpenGate | API Gateway",
-  description: "Owner, reseller and buyer API management panel",
+  metadataBase: new URL("https://opengate.host"),
+  title: {
+    default: "OpenGate — AI API Gateway for Resellers",
+    template: "%s | OpenGate",
+  },
+  description:
+    "OpenGate is an OpenAI-compatible AI API gateway for resellers, buyers, and builders. Sell and route AI access with managed API keys, usage dashboards, quota controls, and per-key limits.",
+  keywords: [
+    "AI API gateway",
+    "OpenAI-compatible API",
+    "AI API reseller",
+    "LLM API routing",
+    "managed API keys",
+    "AI usage dashboard",
+  ],
+  applicationName: "OpenGate",
+  category: "technology",
+  openGraph: {
+    siteName: "OpenGate",
+    title: "OpenGate — AI API Gateway for Resellers",
+    description:
+      "Sell, control, and route AI access from one branded, OpenAI-compatible gateway.",
+    url: "/",
+    type: "website",
+    locale: "en_US",
+  },
+  twitter: {
+    card: "summary",
+    title: "OpenGate — AI API Gateway for Resellers",
+    description:
+      "Sell, control, and route AI access from one branded, OpenAI-compatible gateway.",
+  },
   icons: {
     icon: "/logo.svg",
     apple: "/logo.svg",
@@ -42,6 +73,24 @@ export default function RootLayout({ children }) {
         <a href="#main-content" className="skip-link">
           Skip to main content
         </a>
+        <JsonLd
+          data={{
+            "@context": "https://schema.org",
+            "@type": "Organization",
+            name: "OpenGate",
+            url: "https://opengate.host",
+            logo: "https://opengate.host/logo.svg",
+            description:
+              "OpenAI-compatible AI API gateway for resellers, buyers, and builders.",
+            sameAs: ["https://t.me/opengate_bot"],
+            contactPoint: {
+              "@type": "ContactPoint",
+              contactType: "sales",
+              url: "https://t.me/opengate_bot",
+              availableLanguage: "English",
+            },
+          }}
+        />
         <AppProviders>
           <div className="site-shell landing-v2">
             <ParticleCanvas />

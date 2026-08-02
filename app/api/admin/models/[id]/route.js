@@ -10,6 +10,7 @@ const ALLOWED_PATCH = new Set([
   "output_price_per_m_usd",
   "tier",
   "description",
+  "upstream_model_id",
 ]);
 const ALLOWED_TIERS = new Set(["flagship", "standard", "fast"]);
 
@@ -47,6 +48,21 @@ export async function PATCH(request, { params }) {
       update.output_price_per_m_micro_cents = Math.round(n * MICRO_PER_USD);
     }
     if (k === "description") update.description = String(body[k]).slice(0, 500);
+    if (k === "upstream_model_id") {
+      const v = body[k];
+      if (v == null || v === "") {
+        update.upstream_model_id = null;
+      } else if (typeof v !== "string") {
+        return jsonError(400, "invalid_upstream_model_id", "must be a string");
+      } else {
+        const trimmed = v.trim();
+        if (trimmed.length === 0 || trimmed.length > 200)
+          return jsonError(400, "invalid_upstream_model_id", "1-200 chars");
+        if (/\s/.test(trimmed))
+          return jsonError(400, "invalid_upstream_model_id", "no whitespace allowed");
+        update.upstream_model_id = trimmed;
+      }
+    }
   }
 
   if (Object.keys(update).length === 0)

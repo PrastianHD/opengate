@@ -96,7 +96,7 @@ export default function ModelsView() {
       {view === "cards" ? (
         <div className="models-grid">
           {filtered.map((m) => (
-            <div className="model-card" key={m.name}>
+            <div className="model-card" key={m.slug}>
               <div className="model-card-head">
                 <div>
                   <h3>{m.name}</h3>
@@ -178,7 +178,7 @@ export default function ModelsView() {
             </thead>
             <tbody>
               {filtered.map((m) => (
-                <tr key={m.name}>
+                <tr key={m.slug}>
                   <td className="model-name-cell">{m.name}</td>
                   <td>{m.provider}</td>
                   <td>

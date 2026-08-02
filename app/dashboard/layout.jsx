@@ -5,6 +5,10 @@ import Avatar from "../components/Avatar";
 import SidebarShell, { SidebarCollapseButton } from "../components/SidebarShell";
 import DashboardNav from "./DashboardNav";
 
+export const metadata = {
+  robots: { index: false, follow: false },
+};
+
 export default async function DashboardLayout({ children }) {
   const supabase = await createClient();
   const {

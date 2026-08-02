@@ -12,11 +12,11 @@ UI/
 image.png
 CLAUDE.md
 .claude/
+.mcp.json
+next-env.d.ts
 
 # Supabase local
 supabase/.branches
 supabase/.temp
 
 foto/
-
-package-lock.json

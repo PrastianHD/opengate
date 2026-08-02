@@ -1,0 +1,60 @@
+# Caddyfile — OpenGate VPS (opengate.host)
+#
+# Layout:
+#   :443 (Caddy, auto Let's Encrypt)
+#     ├── opengate.host        → 127.0.0.1:3000   (OpenGate landing + dashboard)
+#     ├── api.opengate.host    → 127.0.0.1:3000   (OpenGate /v1 gateway)
+#     └── 9router.opengate.host (OPTIONAL, IP-allowlisted) → 127.0.0.1:20128
+#
+# 9Router itself binds to 127.0.0.1:20128 — never reachable from the internet
+# directly. Open ports on the firewall: 80, 443 only.
+#
+# Drop this file at /etc/caddy/Caddyfile, then:
+#   sudo systemctl reload caddy
+
+{
+	# email used by Let's Encrypt for cert expiry notices
+	email admin@opengate.host
+}
+
+# -----------------------------------------------------------------------------
+# Public OpenGate (landing + dashboard + API on the same Next.js app)
+# -----------------------------------------------------------------------------
+opengate.host, api.opengate.host {
+	encode zstd gzip
+
+	# Long-lived SSE for /v1/chat/completions streaming.
+	# Disable buffering so chunks reach the client immediately.
+	reverse_proxy 127.0.0.1:3000 {
+		flush_interval -1
+		transport http {
+			read_timeout 10m
+			write_timeout 10m
+		}
+	}
+
+	# Standard hardening
+	header {
+		Strict-Transport-Security "max-age=31536000; includeSubDomains"
+		X-Content-Type-Options "nosniff"
+		Referrer-Policy "strict-origin-when-cross-origin"
+		-Server
+	}
+}
+
+# -----------------------------------------------------------------------------
+# OPTIONAL: expose the 9Router admin dashboard over HTTPS, IP-allowlisted.
+# Comment this whole block out unless you actually need remote admin.
+# Better default: tunnel over SSH:
+#   ssh -L 20128:localhost:20128 user@vps
+#   open http://localhost:20128/dashboard
+# -----------------------------------------------------------------------------
+# 9router.opengate.host {
+# 	@admin remote_ip 1.2.3.4 5.6.7.8
+# 	handle @admin {
+# 		reverse_proxy 127.0.0.1:20128
+# 	}
+# 	handle {
+# 		respond "forbidden" 403
+# 	}
+# }

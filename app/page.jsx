@@ -3,10 +3,31 @@ import HoverCard from "./components/HoverCard";
 import AnimatedTerminal from "./components/AnimatedTerminal";
 import IntegrationLogos from "./components/IntegrationLogos";
 import MetricsStrip from "./components/MetricsStrip";
+import { JsonLd } from "./components/JsonLd";
+
+export const metadata = {
+  title: "OpenGate — AI API Gateway for Resellers",
+  description:
+    "Sell, control, and route AI access from one branded gateway. OpenGate gives resellers, buyers, and builders OpenAI-compatible chat, responses, and image generation with managed API keys, usage visibility, and quota controls.",
+  alternates: {
+    canonical: "/",
+  },
+};
 
 export default function HomePage() {
   return (
     <>
+      <JsonLd
+        data={{
+          "@context": "https://schema.org",
+          "@type": "WebSite",
+          name: "OpenGate",
+          url: "https://opengate.host",
+          description:
+            "OpenAI-compatible AI API gateway for resellers, buyers, and builders.",
+          inLanguage: "en",
+        }}
+      />
       <section id="home" className="atelier-hero">
         <div className="hero-copy atelier-copy">
           <p className="eyebrow">◆ Private AI Gateway Studio</p>

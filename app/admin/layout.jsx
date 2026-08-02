@@ -5,6 +5,7 @@ import AdminNav from "./AdminNav";
 
 export const metadata = {
   title: "Admin | OpenGate",
+  robots: { index: false, follow: false },
 };
 
 export default async function AdminLayout({ children }) {

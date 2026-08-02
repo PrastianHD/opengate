@@ -6,6 +6,7 @@ import LoginButton from "./LoginButton";
 
 export const metadata = {
   title: "Sign in | OpenGate",
+  robots: { index: false, follow: false },
 };
 
 export default async function LoginPage({ searchParams }) {

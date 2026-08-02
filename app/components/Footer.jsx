@@ -53,9 +53,7 @@ export default function Footer() {
           </div>
           <div className="footer-col">
             <h5>Legal</h5>
-            <a href="/privacy">Privacy</a>
-            <a href="/terms">Terms</a>
-            <a href="/acceptable-use">Acceptable Use</a>
+            <span className="text-zinc-500 text-sm">Coming soon</span>
           </div>
         </div>
       </div>
